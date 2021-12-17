@@ -10,14 +10,14 @@
             <div class="mb-3">
               <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
               <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{ if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}}>
-              {{ if .FieldDescBy }}<label id="{{.FieldDescBy}}">{{ .FieldHelp}}</label>{{end}}
+              {{ if .FieldDescBy}}<div id="{{.FieldDescBy}}" class="form-text">{{ .FieldHelp}}</div>{{end}}
             </div>
-            {{end}
-          {{ $formrole := .FormRole}}
+            {{end}}
+            {{ $formrole := .FormRole}}
             {{ if eq $formrole "adduser"}}
               <div>
-                <select class="form-select" aria-label="ActiveSelection">
-                    <option selected>Active</option>
+                <label for="userStatus" class="form-label">Activate User</label>
+                <select class="mb-3 form-select" aria-label="ActiveSelection" id="userStatus">
                     <option value="1">Yes</option>
                     <option value="2">No</option>
                 </select>

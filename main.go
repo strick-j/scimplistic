@@ -1,22 +1,15 @@
 package main
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/strick-j/go-form-webserver/views"
 )
 
-var tpl *template.Template
-
-func init() {
-	tpl = template.Must(template.ParseGlob("templates/*.html"))
-}
-
 func main() {
 
 	// Handler for initial Index
-	http.HandleFunc("/", index)
+	http.HandleFunc("/", views.IndexReq)
 
 	// Handlers for user functions
 	http.HandleFunc("/allusers/", views.UserAllReq)
@@ -37,8 +30,4 @@ func main() {
 	http.HandleFunc("/safedelform/", views.SafeDelForm)
 
 	http.ListenAndServe(":8080", nil)
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "index.html", nil)
 }
