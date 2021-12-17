@@ -1,0 +1,50 @@
+{{template "_head.html" .}}
+
+    <div class="container-lg m-5 mx-auto">
+        <div class="row">
+            <div class="col">
+                <form action="/useraddreq" method="GET">
+                    <Legend>Add User Form</Legend>
+                    <div class="mb-3">
+                        <label for="Username" class="form-label">Username</label>
+                        <input type="text" name="FormUserName" class="form-control" id="Username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="givenName" class="form-label">First Name</label>
+                        <input type="text" name="FormGivenName" class="form-control" id="givenName" aria-describedby="givenHelp">
+                        <label id="givenHelp">Optional</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="familyName" class="form-label">Last Name</label>
+                        <input type="text" name="FormFamilyName" class="form-control" id="familyName" aria-describedby="familyHelp">
+                        <label id="familyHelp">Optional</label>
+                    </div>
+                    <div class="mb-3">
+                    <label for="InputEmail" class="form-label">Email address</label>
+                    <input type="email" name="FormEmail" class="form-control" id="InputEmail" placeholder="username@acme.com">
+                    </div>
+                        <label for="inputPassword5" class="form-label">Password</label>
+                        <input type="password" name="FormPassword" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock">
+                        <div id="passwordHelpBlock" class="form-text">
+                        User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.
+                    </div>
+                    <div>
+                        <select class="form-select" aria-label="Default select example">
+                            <option selected>Active</option>
+                            <option value="1">Yes</option>
+                            <option value="2">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label class="form-check-label" for="exampleCheck1">Please review the above information for accuracy.</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

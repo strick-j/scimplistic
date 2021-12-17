@@ -1,0 +1,34 @@
+{{template "_head.html" .}}
+
+<div class="container-lg m-5 mx-auto">
+  <div class="row">
+    <div class="col">
+      <form action="/safeaddreq" method="GET">
+        <Legend>Add Safe Form</Legend>
+        <div class="mb-3">
+          <label for="Safename" class="form-label">Safe Name</label>
+          <input type="text" name="FormSafeName" class="form-control" id="Safename">
+        </div>
+        <div class="mb-3">
+          <label for="DisplayName" class="form-label">Safe Display Name</label>
+          <input type="text" name="FormSafeDisplayName" class="form-control" id="DisplayName">
+        </div>
+        <div class="mb-3">
+          <label for="SafeDescription" class="form-label">Description</label>
+          <input type="text" name="FormSafeDescription" class="form-control" id="SafeDescription">
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="exampleCheck1">
+          <label class="form-check-label" for="exampleCheck1">Please review the above information for accuracy.</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+
+</html>
