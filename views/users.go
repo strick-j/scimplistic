@@ -80,7 +80,6 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	req.Header.Add("Authorization", "Bearer ***REMOVED***")
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := client.Do(req)
