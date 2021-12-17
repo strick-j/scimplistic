@@ -5,22 +5,34 @@
     <div class="col">
       <form action="{{ .FormAction}}" method="{{.FormMethod}}">
         <Legend>{{ .FormLegend}}</Legend>
-        {{ if .FormFields}}
+          {{ if .FormFields}}
             {{range .FormFields}}
             <div class="mb-3">
-                <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
-                <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}">
+              <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
+              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{ if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}}>
+              {{ if .FieldDescBy }}<label id="{{.FieldDescBy}}">{{ .FieldHelp}}</label>{{end}}
             </div>
+            {{end}
+            {{ $formrole := .FormRole}}
+            {{ if eq $formrole "adduser"}}
+              <div>
+                <select class="form-select" aria-label="ActiveSelection">
+                    <option selected>Active</option>
+                    <option value="1">Yes</option>
+                    <option value="2">No</option>
+                </select>
+              </div>
             {{end}}
+          {{end}}
             <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="exampleCheck1">
-              <label class="form-check-label" for="exampleCheck1">Please review the above information for accuracy.</label>
+              <input type="checkbox" class="form-check-input" id="accuracyCheck">
+              <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
             </div>
-            {{ else}}
+          {{ else}}
             <div>
                 <h2>No form data available.</h2>
             </div>
-            {{end}}
+          {{end}}
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>

@@ -15,6 +15,7 @@ func init() {
 
 func main() {
 
+	// Handler for initial Index
 	http.HandleFunc("/", index)
 
 	// Handlers for user functions
@@ -33,7 +34,7 @@ func main() {
 	http.HandleFunc("/allsafes/", views.SafeAllReq)
 	http.HandleFunc("/safeaddform/", views.SafeAddForm)
 	http.HandleFunc("/safeaddreq/", views.SafeAddReq)
-	//http.HandleFunc("/safedelform/", views.SafeDelForm)
+	http.HandleFunc("/safedelform/", views.SafeDelForm)
 
 	http.ListenAndServe(":8080", nil)
 }

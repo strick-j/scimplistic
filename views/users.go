@@ -34,7 +34,64 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 
 //UserAddForm is the form for collecting data to add a new user
 func UserAddForm(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "useraddform.html", nil)
+
+	userFormData := types.CreateForm{
+		FormAction: "/useraddreq",
+		FormMethod: "GET",
+		FormLegend: "Add User Form",
+		FormRole:   "adduser",
+		FormFields: []types.FormFields{
+			{
+				FieldLabel:     "Username",
+				FieldLabelText: "Username",
+				FieldInputType: "Text",
+				FieldRequired:  true,
+				FieldInputName: "FormUserName",
+				FieldIdNum:     1,
+			},
+			{
+				FieldLabel:     "givenName",
+				FieldLabelText: "First Name",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormGivenName",
+				FieldDescBy:    "givenHelp",
+				FieldHelp:      "Optional",
+				FieldIdNum:     2,
+			},
+			{
+				FieldLabel:     "familyName",
+				FieldLabelText: "Last Name",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormFamilyName",
+				FieldDescBy:    "familyHelp",
+				FieldHelp:      "Optional",
+				FieldIdNum:     3,
+			},
+			{
+				FieldLabel:     "inputEmail",
+				FieldLabelText: "Email Address",
+				FieldInputType: "email",
+				FieldRequired:  false,
+				FieldInputName: "FormEmail",
+				FieldPlaceHold: "username@acme.com",
+				FieldIdNum:     4,
+			},
+			{
+				FieldLabel:     "inputPassword",
+				FieldLabelText: "User Password",
+				FieldInputType: "password",
+				FieldRequired:  true,
+				FieldInputName: "FormPassword",
+				FieldDescBy:    "PasswordHelp",
+				FieldHelp:      "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
+				FieldIdNum:     5,
+			},
+		},
+	}
+
+	tpl.ExecuteTemplate(w, "objectaddform.html", userFormData)
 }
 
 //UserDelForm is the form for deleting a user
@@ -57,7 +114,7 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 	upassword := r.FormValue("FormPassword")
 	scimschema := []string{"urn:ietf:params:scim:schemas:core:2.0:User"}
 
-	addUserData := types.AddUser{
+	addUserData := types.PostUserRequest{
 		UserName: uname,
 		Password: upassword,
 		Schemas:  scimschema,
@@ -80,7 +137,8 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	req.Header.Add("Authorization", "Bearer ***REMOVED***")
+	// removed header auth token
+
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := client.Do(req)
