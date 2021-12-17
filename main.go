@@ -29,5 +29,8 @@ func main() {
 	http.HandleFunc("/safeaddreq/", views.SafeAddReq)
 	http.HandleFunc("/safedelform/", views.SafeDelForm)
 
+	// Serve files for use, omit static from URL
+	http.Handle("/static/", http.FileServer(http.Dir("public")))
+
 	http.ListenAndServe(":8080", nil)
 }

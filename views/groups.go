@@ -40,17 +40,18 @@ func GroupAddForm(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Initializing Add Group Form")
 
 	groupFormData := types.CreateForm{
-		FormAction: "/groupaddreq",
-		FormMethod: "GET",
+		FormAction: "/groupaddreq/",
+		FormMethod: "POST",
 		FormLegend: "Add Group Form",
 		FormFields: []types.FormFields{
 			{
-				FieldLabel:     "DisplayName",
-				FieldLabelText: "Group Display Name",
-				FieldInputType: "Text",
-				FieldRequired:  true,
-				FieldInputName: "FormGroupDisplayName",
-				FieldIdNum:     1,
+				FieldLabel:      "DisplayName",
+				FieldLabelText:  "Group Display Name",
+				FieldInputType:  "Text",
+				FieldRequired:   true,
+				FieldInputName:  "FormGroupDisplayName",
+				FieldInFeedback: "Group Display Name is Required",
+				FieldIdNum:      1,
 			},
 		},
 	}
@@ -61,7 +62,7 @@ func GroupAddForm(w http.ResponseWriter, r *http.Request) {
 
 //GroupAddReq is used to add users from the /useraddreq URL
 func GroupAddReq(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}

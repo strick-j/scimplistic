@@ -27,18 +27,19 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 func UserAddForm(w http.ResponseWriter, r *http.Request) {
 
 	userFormData := types.CreateForm{
-		FormAction: "/useraddreq",
-		FormMethod: "GET",
+		FormAction: "/useraddreq/",
+		FormMethod: "POST",
 		FormLegend: "Add User Form",
 		FormRole:   "adduser",
 		FormFields: []types.FormFields{
 			{
-				FieldLabel:     "Username",
-				FieldLabelText: "Username",
-				FieldInputType: "Text",
-				FieldRequired:  true,
-				FieldInputName: "FormUserName",
-				FieldIdNum:     1,
+				FieldLabel:      "Username",
+				FieldLabelText:  "Username",
+				FieldInputType:  "Text",
+				FieldRequired:   true,
+				FieldInputName:  "FormUserName",
+				FieldInFeedback: "Username is required.",
+				FieldIdNum:      1,
 			},
 			{
 				FieldLabel:     "givenName",
@@ -70,14 +71,16 @@ func UserAddForm(w http.ResponseWriter, r *http.Request) {
 				FieldIdNum:     4,
 			},
 			{
-				FieldLabel:     "inputPassword",
-				FieldLabelText: "User Password",
-				FieldInputType: "password",
-				FieldRequired:  true,
-				FieldInputName: "FormPassword",
-				FieldDescBy:    "PasswordHelp",
-				FieldHelp:      "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
-				FieldIdNum:     5,
+				FieldLabel:      "inputPassword",
+				FieldLabelText:  "User Password",
+				FieldInputType:  "password",
+				FieldRequired:   true,
+				FieldInputName:  "FormPassword",
+				FieldDescBy:     "PasswordHelp",
+				FieldHelp:       "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
+				FieldInFeedback: "Password is required.",
+
+				FieldIdNum: 5,
 			},
 		},
 	}
@@ -92,7 +95,7 @@ func UserDelForm(w http.ResponseWriter, r *http.Request) {
 
 //UserAddReq is used to add users from the /useraddreq URL
 func UserAddReq(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}

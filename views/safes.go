@@ -35,32 +35,37 @@ func SafeAddForm(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Initializing Add Safe Form")
 
 	safeFormData := types.CreateForm{
-		FormAction: "/safeaddreq",
-		FormMethod: "GET",
+		FormAction: "/safeaddreq/",
+		FormMethod: "POST",
 		FormLegend: "Add Safe Form",
 		FormFields: []types.FormFields{
 			{
-				FieldLabel:     "SafeName",
-				FieldLabelText: "Safe Name",
-				FieldInputType: "Text",
-				FieldRequired:  true,
-				FieldInputName: "FormSafeName",
-				FieldIdNum:     1,
+				FieldLabel:      "SafeName",
+				FieldLabelText:  "Safe Name",
+				FieldInputType:  "Text",
+				FieldRequired:   true,
+				FieldInputName:  "FormSafeName",
+				FieldInFeedback: "Safe Name is Required.",
+				FieldIdNum:      1,
 			},
 			{
 				FieldLabel:     "DisplayName",
 				FieldLabelText: "Group Display Name",
 				FieldInputType: "Text",
-				FieldRequired:  true,
+				FieldRequired:  false,
 				FieldInputName: "FormSafeDisplayName",
+				FieldDescBy:    "displayHelp",
+				FieldHelp:      "Optional",
 				FieldIdNum:     2,
 			},
 			{
 				FieldLabel:     "SafeDescription",
 				FieldLabelText: "Description",
 				FieldInputType: "Text",
-				FieldRequired:  true,
+				FieldRequired:  false,
 				FieldInputName: "FormSafeDescription",
+				FieldDescBy:    "descHelp",
+				FieldHelp:      "Optional",
 				FieldIdNum:     3,
 			},
 		},
@@ -77,7 +82,7 @@ func SafeDelForm(w http.ResponseWriter, r *http.Request) {
 
 //SafeAddReq is used to add users from the /useraddreq URL
 func SafeAddReq(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}

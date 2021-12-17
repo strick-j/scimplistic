@@ -211,15 +211,17 @@ type CreateForm struct {
 
 // FormFields build out the individual fields within a form
 type FormFields struct {
-	FieldLabel     string `json:"fieldLabel"`
-	FieldLabelText string `json:"fieldLabelText,omitempty"`
-	FieldInputType string `json:"fieldInputType"`
-	FieldRequired  bool   `json:"fieldReuired,omitempty"`
-	FieldInputName string `json:"fieldInputName,omitempty"`
-	FieldDescBy    string `json:"fieldDescBy,omitempty"`
-	FieldHelp      string `json:"fieldHelp,omitempty"`
-	FieldPlaceHold string `json:"fieldPlaceHold,omitempty"`
-	FieldIdNum     int    `json:"fieldId,omitempty"`
+	FieldLabel      string `json:"fieldLabel"`
+	FieldLabelText  string `json:"fieldLabelText,omitempty"`
+	FieldInputType  string `json:"fieldInputType"`
+	FieldRequired   bool   `json:"fieldReuired,omitempty"`
+	FieldInputName  string `json:"fieldInputName,omitempty"`
+	FieldDescBy     string `json:"fieldDescBy,omitempty"`
+	FieldHelp       string `json:"fieldHelp,omitempty"`
+	FieldPlaceHold  string `json:"fieldPlaceHold,omitempty"`
+	FieldIdNum      int    `json:"fieldId,omitempty"`
+	FieldInFeedback string `json:"fieldInFeedback,omitempty"`
+	FieldVaFeedback string `json:"fieldVaFeedback,omitempty"`
 }
 
 // PostUser is the struct created for adding users

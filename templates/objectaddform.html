@@ -3,14 +3,15 @@
 <div class="container-lg m-5 mx-auto">
   <div class="row">
     <div class="col">
-      <form action="{{ .FormAction}}" method="{{.FormMethod}}">
+      <form action="{{ .FormAction}}" method="{{.FormMethod}}" class="needs-validation" novalidate>
         <Legend>{{ .FormLegend}}</Legend>
           {{ if .FormFields}}
             {{range .FormFields}}
             <div class="mb-3">
               <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
-              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{ if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}}>
+              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{ if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}} {{ if .FieldRequired}}required{{end}}>
               {{ if .FieldDescBy}}<div id="{{.FieldDescBy}}" class="form-text">{{ .FieldHelp}}</div>{{end}}
+              {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
             </div>
             {{end}}
             {{ $formrole := .FormRole}}
@@ -24,7 +25,7 @@
               </div>
             {{end}}
             <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="accuracyCheck">
+              <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
               <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
             </div>
           {{ else}}
@@ -32,7 +33,7 @@
                 <h2>No form data available.</h2>
             </div>
           {{end}}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" value="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
   </div>
@@ -40,6 +41,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="/static/js/formvalidate.js"></script>
+
+{{template "_footer.html" .}}
+
 </body>
 
 </html>
