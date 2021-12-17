@@ -1,21 +1,12 @@
 package views
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"text/template"
 
 	types "github.com/strick-j/go-form-webserver/types"
 )
-
-var tpl *template.Template
-
-func init() {
-	tpl = template.Must(template.ParseGlob("templates/*.html"))
-}
 
 //UserAllReq is the function for requesting user info for collecting data to add a new user
 func UserAllReq(w http.ResponseWriter, r *http.Request) {
@@ -106,65 +97,33 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("made it to form read in UserAddReq")
+	fmt.Println("Reading data from UserAddReq Form")
 	uname := r.FormValue("FormUserName")
-	//fname := r.FormValue("FormGivenName")
-	//lname := r.FormValue("FormFamilyName")
+	fname := r.FormValue("FormGivenName")
+	lname := r.FormValue("FormFamilyName")
+	udname := r.FormValue("FormDisplayName")
 	//uemail := r.FormValue("FormEmail")
 	upassword := r.FormValue("FormPassword")
 	scimschema := []string{"urn:ietf:params:scim:schemas:core:2.0:User"}
 
 	addUserData := types.PostUserRequest{
 		UserName: uname,
-		Password: upassword,
-		Schemas:  scimschema,
+		Name: types.FullName{
+			FamilyName: fname,
+			GivenName:  lname,
+		},
+		DisplayName: udname,
+		Password:    upassword,
+		UserType:    "EPVUser",
+		Active:      true,
+		Schemas:     scimschema,
 	}
 
-	url := "https://identity.strlab.us/scim/v2/Users"
-	method := "POST"
-	payload, err := json.Marshal(addUserData)
+	// Required as placeholder
+	blankstruct := types.PostObjectRequest{}
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	res := ScimAPI("Containers", "POST", blankstruct, addUserData)
 
-	// Make request with marshalled JSON as the POST body
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-<<<<<<< HEAD
-	// removed header auth token
-
-=======
->>>>>>> bb171bf6b1745518c2ec22658182e0a172fd048c
-	req.Header.Add("Content-Type", "application/json")
-
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if res.StatusCode == 201 {
-
-		http.Redirect(w, r, "/success", http.StatusCreated)
-	} //else if http.StatusText(res.StatusCode) == "Unauthorized" {
-	//	fmt.Println("User does not have the appropriate permissions to utilize the REST API")
-	//}
-	fmt.Println(res)
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(string(body))
+	fmt.Println(string(res))
 
 }

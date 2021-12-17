@@ -59,7 +59,7 @@ func BuildUrl(target string, apimethod string) []byte {
 	return body
 }
 
-func ScimAPI(target string, apimethod string, data types.PostObjectRequest) []byte {
+func ScimAPI(target string, apimethod string, data types.PostObjectRequest, userdata types.PostUserRequest) []byte {
 	values, err := config.ReadConfig("config.json")
 	if err != nil {
 		fmt.Println(err)

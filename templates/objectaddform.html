@@ -13,7 +13,7 @@
               {{ if .FieldDescBy }}<label id="{{.FieldDescBy}}">{{ .FieldHelp}}</label>{{end}}
             </div>
             {{end}
-            {{ $formrole := .FormRole}}
+          {{ $formrole := .FormRole}}
             {{ if eq $formrole "adduser"}}
               <div>
                 <select class="form-select" aria-label="ActiveSelection">
@@ -23,7 +23,6 @@
                 </select>
               </div>
             {{end}}
-          {{end}}
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="accuracyCheck">
               <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>

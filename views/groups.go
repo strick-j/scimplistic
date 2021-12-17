@@ -75,7 +75,10 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 		Schemas:     scimschema,
 	}
 
-	res := ScimAPI("Groups", "POST", addGroupData)
+	// Required as placeholder
+	blankstruct := types.PostUserRequest{}
+
+	res := ScimAPI("Groups", "POST", addGroupData, blankstruct)
 
 	fmt.Println(string(res))
 	tpl.ExecuteTemplate(w, "/", nil)

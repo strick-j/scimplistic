@@ -95,7 +95,10 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 		Schemas:     scimschema,
 	}
 
-	res := ScimAPI("Containers", "POST", addSafeData)
+	// Required as placeholder
+	blankstruct := types.PostUserRequest{}
+
+	res := ScimAPI("Containers", "POST", addSafeData, blankstruct)
 
 	fmt.Println(string(res))
 	//tpl.ExecuteTemplate(w, "safeallinfo.html", bodyObject)
