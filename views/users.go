@@ -137,8 +137,11 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
+<<<<<<< HEAD
 	// removed header auth token
 
+=======
+>>>>>>> bb171bf6b1745518c2ec22658182e0a172fd048c
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := client.Do(req)
