@@ -27,6 +27,29 @@
             {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
         </div>
         {{end}}
+        {{ if .Groups}} {{ $value := .Groups}}
+          <legend>Remove Group Members</legend>
+          {{range $value.Resources}}
+            <ul class="list-group mb-3">
+            {{range .Members}}
+            <li class="list-group-item">
+              <div class="row align-items-center">
+                <div class="col-auto"><input class="form-check-input p-2" type="checkbox" value="" aria-label="removemember{{.Value}}" name="delete{{.Value}}"></div>
+                <div class="col"><strong>DisplayName: </strong>{{.Display}}</div>
+                <div class="col"><strong>Member ID: </strong>{{.Value}}</div>
+                <div class="col"><strong>Reference: </strong>{{.Ref}}</div>
+              </div>
+            </li>
+            {{end}}
+            </ul>
+            </form>
+          {{end}}
+          <legend>Add Group Members</legend>
+          <div class="mb-3">
+            <textarea class="form-control" id="addGroupMembers" rows="3" aria-describedby="addGroupMemHelp">e.g. 28,45,105</textarea>
+            <div id="addGroupMemHelp" class="form-text">Add users by User ID seperated by commas.</div>
+          </div>
+        {{end}}
         {{ if eq $formrole "adduser"}}
         <div>
           <label for="userStatus" class="form-label">Activate User</label>

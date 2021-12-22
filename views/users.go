@@ -20,7 +20,72 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 	var bodyObject types.User
 	json.Unmarshal(res, &bodyObject)
 
-	tpl.ExecuteTemplate(w, "userallinfo.html", bodyObject)
+	userFormData := types.CreateForm{
+		FormAction: "/useraddreq/",
+		FormMethod: "POST",
+		FormLegend: "Add User Form",
+		FormRole:   "adduser",
+		FormFields: []types.FormFields{
+			{
+				FieldLabel:      "Username",
+				FieldLabelText:  "Username",
+				FieldInputType:  "Text",
+				FieldRequired:   true,
+				FieldInputName:  "FormUserName",
+				FieldInFeedback: "Username is required.",
+				FieldIdNum:      1,
+			},
+			{
+				FieldLabel:     "givenName",
+				FieldLabelText: "First Name",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormGivenName",
+				FieldDescBy:    "givenHelp",
+				FieldHelp:      "Optional",
+				FieldIdNum:     2,
+			},
+			{
+				FieldLabel:     "familyName",
+				FieldLabelText: "Last Name",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormFamilyName",
+				FieldDescBy:    "familyHelp",
+				FieldHelp:      "Optional",
+				FieldIdNum:     3,
+			},
+			{
+				FieldLabel:     "inputEmail",
+				FieldLabelText: "Email Address",
+				FieldInputType: "email",
+				FieldRequired:  false,
+				FieldInputName: "FormEmail",
+				FieldPlaceHold: "username@acme.com",
+				FieldIdNum:     4,
+			},
+			{
+				FieldLabel:      "inputPassword",
+				FieldLabelText:  "User Password",
+				FieldInputType:  "password",
+				FieldRequired:   true,
+				FieldInputName:  "FormPassword",
+				FieldDescBy:     "PasswordHelp",
+				FieldHelp:       "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
+				FieldInFeedback: "Password is required.",
+
+				FieldIdNum: 5,
+			},
+		},
+	}
+
+	context := types.Context{
+		Navigation: "Users",
+		CreateForm: userFormData,
+		Users:      bodyObject,
+	}
+
+	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
 
 //UserAddForm is the form for collecting data to add a new user
@@ -85,7 +150,12 @@ func UserAddForm(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tpl.ExecuteTemplate(w, "objectaddform.html", userFormData)
+	context := types.Context{
+		Navigation: "Add User",
+		CreateForm: userFormData,
+	}
+
+	tpl.ExecuteTemplate(w, "objectaddform.html", context)
 }
 
 //UserDelForm is the form for deleting a user

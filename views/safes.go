@@ -26,7 +26,49 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 		bodyObject.Resources[i].UniqueSafeId = strconv.Itoa(i)
 	}
 
-	tpl.ExecuteTemplate(w, "safeallinfo.html", bodyObject)
+	safeFormData := types.CreateForm{
+		FormAction: "/safeaddreq/",
+		FormMethod: "POST",
+		FormLegend: "Add Safe Form",
+		FormFields: []types.FormFields{
+			{
+				FieldLabel:      "SafeName",
+				FieldLabelText:  "Safe Name",
+				FieldInputType:  "Text",
+				FieldRequired:   true,
+				FieldInputName:  "FormSafeName",
+				FieldInFeedback: "Safe Name is Required.",
+				FieldIdNum:      1,
+			},
+			{
+				FieldLabel:     "DisplayName",
+				FieldLabelText: "Safe Display Name",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormSafeDisplayName",
+				FieldDescBy:    "displayHelp",
+				FieldHelp:      "Optional",
+				FieldIdNum:     2,
+			},
+			{
+				FieldLabel:     "SafeDescription",
+				FieldLabelText: "Description",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormSafeDescription",
+				FieldDescBy:    "descHelp",
+				FieldHelp:      "Optional",
+				FieldIdNum:     3,
+			},
+		},
+	}
+
+	context := types.Context{
+		Navigation: "Safes",
+		CreateForm: safeFormData,
+		Safes:      bodyObject,
+	}
+	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
 
 //UserAddForm is the form for collecting data to add a new user
@@ -50,7 +92,7 @@ func SafeAddForm(w http.ResponseWriter, r *http.Request) {
 			},
 			{
 				FieldLabel:     "DisplayName",
-				FieldLabelText: "Group Display Name",
+				FieldLabelText: "Safe Display Name",
 				FieldInputType: "Text",
 				FieldRequired:  false,
 				FieldInputName: "FormSafeDisplayName",
@@ -71,8 +113,14 @@ func SafeAddForm(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	context := types.Context{
+		Navigation:         "Add Safe",
+		SettingsConfigured: false,
+		CreateForm:         safeFormData,
+	}
+
 	// Pass form data to form template to dynamically build form
-	tpl.ExecuteTemplate(w, "objectaddform.html", safeFormData)
+	tpl.ExecuteTemplate(w, "objectaddform.html", context)
 }
 
 //UserDelForm is the form for deleting a user
@@ -106,5 +154,6 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 	res := ScimAPI("Containers", "POST", addSafeData, blankstruct)
 
 	fmt.Println(string(res))
-	//tpl.ExecuteTemplate(w, "safeallinfo.html", bodyObject)
+	// Redirect back to all safes
+	http.Redirect(w, r, "/allsafes/", http.StatusFound)
 }

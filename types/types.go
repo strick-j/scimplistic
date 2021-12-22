@@ -209,8 +209,9 @@ type CreateForm struct {
 	FormFields []FormFields `json:"formFields"`
 }
 
-// FormFields build out the individual fields within a form
+// FormFields builds out the individual fields within a form
 type FormFields struct {
+	FieldType       string `json:"fieldType"`
 	FieldLabel      string `json:"fieldLabel"`
 	FieldLabelText  string `json:"fieldLabelText,omitempty"`
 	FieldInputType  string `json:"fieldInputType"`
@@ -222,6 +223,27 @@ type FormFields struct {
 	FieldIdNum      int    `json:"fieldId,omitempty"`
 	FieldInFeedback string `json:"fieldInFeedback,omitempty"`
 	FieldVaFeedback string `json:"fieldVaFeedback,omitempty"`
+	FieldDisabled   bool   `json:"fieldDisabled,omitempty"`
+}
+
+// Context is utilized for sending data to templates / forms
+type Context struct {
+	Navigation         string     `json:"navigation,omitempty"`
+	SettingsConfigured bool       `json:"settingsConfigured,omitempty"`
+	Token              string     `json:"authToken,omitempty"`
+	CreateForm         CreateForm `json:"createForm,omitempty"`
+	Safes              Safes      `json:"safes,omitempty"`
+	Users              User       `json:"users,omitempty"`
+	Groups             Group      `json:"groups,omitempty"`
+	Members            Members    `json:"members,omitempty"`
+}
+
+// ConfigSettings is the struct to hold settings information
+// used in conjunction with MarshallIndent to write configuration
+type ConfigSettings struct {
+	ScimURL   string `json:"scimURL"`
+	AuthToken string `json:"AuthToken"`
+	PrevConf  bool   `json:"prevConf"`
 }
 
 // PostUser is the struct created for adding users
@@ -244,7 +266,7 @@ type Emails struct {
 
 type FullName struct {
 	FamilyName string `json:"familyName,omitempty"`
-	GivenName  string `json:"givenName,omitEmpty"`
+	GivenName  string `json:"givenName,omitempty"`
 }
 
 // PostObjectRequest contains the required fields for a Posts for
@@ -274,4 +296,12 @@ type PostGroupResponse struct {
 		LastModified time.Time `json:"lastModified"`
 		Location     string    `json:"location"`
 	} `json:"meta"`
+}
+
+type DelObjectRequest struct {
+	ResourceType string    `json:"resourceType"`
+	ID           string    `json:"id"`
+	DisplayName  string    `json:"displayName"`
+	Members      []Members `json:"members,omitempty"`
+	Schemas      []string  `json:"schemas"`
 }
