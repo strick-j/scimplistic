@@ -111,12 +111,27 @@
             <div class="accordion-body">
               <strong>Description: </strong>{{ .Description}} <br>
               <strong>Vault Safe ID: </strong>{{ .ID}} <br>
-              <strong>Owner: </strong>{{ .Owner}} <br>
+              <strong>Owner: </strong>{{.Owner.Display}} <br>
               <strong>Created: </strong>{{ .Meta.Created}} <br>
               <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
-              <strong>Retention Days: </strong>{{
-              .UrnIetfParamsScimSchemasCyberark11Safe.NumberOfDaysRetention}} <br>
-              <strong>Managing CPM: </strong> {{ .UrnIetfParamsScimSchemasCyberark11Safe.ManagingCPM}}
+              <strong>Retention Days: </strong>{{.UrnIetfParamsScimSchemasCyberark11Safe.NumberOfDaysRetention}} <br>
+              <strong>Managing CPM: </strong> {{.UrnIetfParamsScimSchemasCyberark11Safe.ManagingCPM}}
+              <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                <a href="#">
+                  <div class="ps-2 bd-highlight">
+                    <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
+                      <span class="visually-hidden">Delete</span>
+                    </div>
+                  </div>
+                </a>
+                <a href="#">
+                  <div class="ps-2 bd-highlight">
+                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                      <span class="visually-hidden">Edit</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -144,6 +159,22 @@
               <strong>Entitlements: </strong>{{ .Entitlements}} <br>
               <strong>Created: </strong>{{ .Meta.Created}} <br>
               <strong>Last Modified: </strong>{{ .Meta.LastModified}}
+              <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                <a href="#">
+                  <div class="ps-2 bd-highlight">
+                    <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
+                      <span class="visually-hidden">Delete</span>
+                    </div>
+                  </div>
+                </a>
+                <a href="#">
+                  <div class="ps-2 bd-highlight">
+                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                      <span class="visually-hidden">Edit</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         </div>
