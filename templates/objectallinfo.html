@@ -158,7 +158,26 @@
               <strong>Active: </strong> {{ .Active}} <br>
               <strong>Entitlements: </strong>{{ .Entitlements}} <br>
               <strong>Created: </strong>{{ .Meta.Created}} <br>
-              <strong>Last Modified: </strong>{{ .Meta.LastModified}}
+              <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
+              <strong>Groups:</strong> <br>
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Group ID</th>
+                    <th scope="col">DisplayName</th>
+                    <th scope="col">Type</th>
+                  </tr>
+                </thead>
+              {{range .Groups}}
+              <tbody>
+                <tr>
+                  <th scope="row">{{.Value}}</th>
+                  <td>{{.Display}}</td>
+                  <td>{{.Type}}</td>
+                </tr>
+              {{end}}
+              </tbody>
+              </table>
               <div class="d-flex flex-row-reverse bd-highlight mb-3">
                 <a href="#">
                   <div class="ps-2 bd-highlight">
