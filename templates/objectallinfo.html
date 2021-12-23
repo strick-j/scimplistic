@@ -115,9 +115,28 @@
               <strong>Created: </strong>{{ .Meta.Created}} <br>
               <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
               <strong>Retention Days: </strong>{{.UrnIetfParamsScimSchemasCyberark11Safe.NumberOfDaysRetention}} <br>
-              <strong>Managing CPM: </strong> {{.UrnIetfParamsScimSchemasCyberark11Safe.ManagingCPM}}
+              <strong>Managing CPM: </strong> {{.UrnIetfParamsScimSchemasCyberark11Safe.ManagingCPM}} <br>
+              <strong>Privileged Objects</strong>
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">DisplayName</th>
+                    <th scope="col">Reference</th>
+                  </tr>
+                </thead>
+              {{range .PrivilegedData}}
+              <tbody>
+                <tr>
+                  <th scope="row">{{.Value}}</th>
+                  <td>{{.Display}}</td>
+                  <td>{{.Ref}}</td>
+                </tr>
+              {{end}}
+              </tbody>
+              </table>
               <div class="d-flex flex-row-reverse bd-highlight mb-3">
-                <a href="#">
+                <a href="/safedel/{{.Name}}">
                   <div class="ps-2 bd-highlight">
                     <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
                       <span class="visually-hidden">Delete</span>
@@ -179,7 +198,7 @@
               </tbody>
               </table>
               <div class="d-flex flex-row-reverse bd-highlight mb-3">
-                <a href="#">
+                <a href="/userdel/{{.ID}}">
                   <div class="ps-2 bd-highlight">
                     <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
                       <span class="visually-hidden">Delete</span>

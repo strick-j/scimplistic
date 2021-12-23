@@ -13,7 +13,7 @@ import (
 	"github.com/strick-j/go-form-webserver/types"
 )
 
-func BuildUrl(target string, apimethod string) []byte {
+func BuildUrl(target string, apimethod string) ([]byte, error) {
 	values, err := config.ReadConfig("config.json")
 	if err != nil {
 		fmt.Println(err)
@@ -56,21 +56,32 @@ func BuildUrl(target string, apimethod string) []byte {
 		fmt.Println(err)
 	}
 
-	return body
+	return body, err
 }
 
-func ScimAPI(target string, apimethod string, data types.PostObjectRequest, userdata types.PostUserRequest) []byte {
+func ScimAPI(target string, apimethod string, data types.PostObjectRequest, userdata types.PostUserRequest) ([]byte, int, error) {
 	values, err := config.ReadConfig("config.json")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// Generate json from pass struct
-	payload, err := json.Marshal(data)
-	if err != nil {
-		fmt.Println(err)
-		//return
+	// Generate json from passed struct, check if user or other (Safe/Group)
+	var payload []byte
+	if target == "Users" {
+		payload, err = json.Marshal(userdata)
+		if err != nil {
+			log.Println("ERROR ScimAPI: Error reading user data: ", err)
+			return nil, 0, err
+		}
+	} else {
+		payload, err = json.Marshal(data)
+		if err != nil {
+			log.Println("ERROR ScimAPI: Error reading object data: ", err)
+			return nil, 0, err
+		}
 	}
+	log.Println("INFO ScimAPI: Object data converted to JSON for Post.")
+	log.Println(payload)
 
 	// Generate target URL from passed target
 	finu := &url.URL{
@@ -103,6 +114,8 @@ func ScimAPI(target string, apimethod string, data types.PostObjectRequest, user
 		fmt.Println(err)
 	}
 
+	fmt.Println(res)
+
 	defer res.Body.Close()
 
 	// add check here for  status code. return success and response.
@@ -110,12 +123,16 @@ func ScimAPI(target string, apimethod string, data types.PostObjectRequest, user
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		//return
 	}
 
-	return body
+	fmt.Println(res.Body)
+
+	return body, res.StatusCode, err
 }
 
+// ScimApiDel is used by Users, Groups, and Safes to perform
+// an object deletion. Note: Users and Groups return no response
+// Safes returns a "1" upon successful deletion.
 func ScimApiDel(data types.DelObjectRequest) (int, error) {
 	// Read in Target and Token from Configuration
 	values, err := config.ReadConfig("config.json")
@@ -143,7 +160,7 @@ func ScimApiDel(data types.DelObjectRequest) (int, error) {
 	// Build Request
 	req, err := http.NewRequest(method, finurl, nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("ERROR ScimApiDel:", err)
 	}
 
 	// Add authorization for request
@@ -151,7 +168,7 @@ func ScimApiDel(data types.DelObjectRequest) (int, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("ERROR ScimApiDel:", err)
 	}
 	defer res.Body.Close()
 

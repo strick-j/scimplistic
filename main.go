@@ -22,7 +22,7 @@ func main() {
 	http.HandleFunc("/allusers/", views.UserAllReq)
 	http.HandleFunc("/useraddform/", views.UserAddForm)
 	http.HandleFunc("/useraddreq/", views.UserAddReq)
-	http.HandleFunc("/userdelform/", views.UserDelForm)
+	http.HandleFunc("/userdel/", views.UserDelFunc)
 
 	// Handlers for group functions
 	http.HandleFunc("/allgroups/", views.GroupAllReq)
@@ -36,7 +36,7 @@ func main() {
 	http.HandleFunc("/allsafes/", views.SafeAllReq)
 	http.HandleFunc("/safeaddform/", views.SafeAddForm)
 	http.HandleFunc("/safeaddreq/", views.SafeAddReq)
-	http.HandleFunc("/safedelform/", views.SafeDelForm)
+	http.HandleFunc("/safedel/", views.SafeDelFunc)
 
 	http.ListenAndServe(":8080", nil)
 }

@@ -69,12 +69,15 @@ func ConfigureSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, err := json.MarshalIndent(configSettings, "", "   ")
+	if err != nil {
+		log.Println("ConfigureSettings:", err)
+	}
 	err = ioutil.WriteFile("config.json", file, 0644)
 	if err != nil {
-		log.Println(err)
+		log.Println("ConfigureSettings:", err)
 	}
 
-	log.Println("Configuration File written.")
+	log.Println("ConfigureSettings: Configuration File written.")
 
 	// Redirect back to settings.
 	http.Redirect(w, r, "/settings/", http.StatusFound)

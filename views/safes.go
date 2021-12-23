@@ -2,12 +2,12 @@ package views
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
 	types "github.com/strick-j/go-form-webserver/types"
+	"github.com/strick-j/go-form-webserver/utils"
 )
 
 //SafeAllReq is the function for requesting user info for collecting data to add a new user
@@ -17,11 +17,18 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := BuildUrl("Containers", "GET")
+	res, err := BuildUrl("Containers", "GET")
+	if err != nil {
+		log.Println("ERROR SafeAllReq:", err)
+		return
+	} else {
+		log.Println("INFO SafeAllReq: Group Information Recieved")
+	}
 
 	var bodyObject types.Safes
 	json.Unmarshal(res, &bodyObject)
 
+	// Creating a unique Safe Id for use in safe form creation
 	for i := 0; i < len(bodyObject.Resources); i++ {
 		bodyObject.Resources[i].UniqueSafeId = strconv.Itoa(i)
 	}
@@ -123,9 +130,48 @@ func SafeAddForm(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "objectaddform.html", context)
 }
 
-//UserDelForm is the form for deleting a user
-func SafeDelForm(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "safedelform.html", nil)
+// SafeDelFunc is the function for deleting a Safe
+// Safe deletions are based off of safe Name not ID like users or groups
+func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
+	//for best UX we want the user to be returned to the page making
+	//the delete transaction, we use the r.Referer() function to get the link
+	redirectURL := utils.GetRedirectUrl(r.Referer())
+
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
+	}
+	log.Println("INFO SafeDelFunc: Starting User Delete Process")
+
+	// Retrieve USerID from URL to send to Del Function
+	safeName := r.URL.Path[len("/userdel/"):]
+
+	if safeName == "" {
+		log.Println("ERROR SafeDelFunc: Could not determine Safe Name for Deletion.")
+		return
+	} else {
+		log.Println("INFO SafeDelFunc: Safe Name to Delete:", safeName)
+	}
+
+	// Create Struct for passing data to SCIM API Delete Function
+	delObjectData := types.DelObjectRequest{
+		ResourceType: "containers",
+		ID:           safeName,
+	}
+
+	// Delete Safe and recieve response from Delete Function
+	res, err := ScimApiDel(delObjectData)
+	if res == 204 {
+		log.Println("INFO SafeDelFunc: Safe Deleted:", safeName)
+		log.Println("INFO SafeDelFunc: Valid HTTP StatusCode Recieved:", res)
+		log.Println("SUCCESS SafeDelFunc: UserDelete Process Complete.")
+	} else {
+		log.Println(err)
+		log.Println("ERROR SafeDelFunc: Invalid Http StatusCode Recieved:", res)
+		return
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 //SafeAddReq is used to add users from the /useraddreq URL
@@ -135,7 +181,11 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Reading Data from Safe Add Form")
+	//for best UX we want the user to be returned to the page making
+	//the delete transaction, we use the r.Referer() function to get the link
+	redirectURL := utils.GetRedirectUrl(r.Referer())
+
+	log.Println("INFO SafeAddReq: Reading Data from Safe Add Form")
 	safeName := r.FormValue("FormSafeName")
 	displayName := r.FormValue("FormSafeDisplayName")
 	description := r.FormValue("FormSafeDescription")
@@ -151,9 +201,25 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 	// Required as placeholder
 	blankstruct := types.PostUserRequest{}
 
-	res := ScimAPI("Containers", "POST", addSafeData, blankstruct)
+	log.Println("INFO SafeAddReq: Sending POST to SCIM server for Safe addition.")
+	res, code, err := ScimAPI("Containers", "POST", addSafeData, blankstruct)
+	if code != 201 {
+		log.Println("ERROR SafeAddReq: Error Adding User - Response StatusCode:", code)
+		log.Println("ERROR SafeAddReq: Error Adding User", err)
+		return
+	} else {
+		log.Println("INFO SafeAddReq: Recieved SCIM Response - Valid HTTP StatusCode:", code)
+	}
 
-	fmt.Println(string(res))
-	// Redirect back to all safes
-	http.Redirect(w, r, "/allsafes/", http.StatusFound)
+	// Declare and unmarshal byte based response
+	var bodyObject types.PostSafeResponse
+	err = json.Unmarshal(res, &bodyObject)
+	if err != nil {
+		log.Println("ERROR SafeAddReq: ", err)
+		return
+	} else {
+		log.Println("INFO SafeAddReq: Safe Display Name and ID: ", bodyObject.DisplayName, "-", bodyObject.ID)
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }

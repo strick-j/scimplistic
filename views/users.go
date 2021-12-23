@@ -2,10 +2,12 @@ package views
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 
 	types "github.com/strick-j/go-form-webserver/types"
+	"github.com/strick-j/go-form-webserver/utils"
 )
 
 //UserAllReq is the function for requesting user info for collecting data to add a new user
@@ -15,7 +17,13 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := BuildUrl("Users", "GET")
+	res, err := BuildUrl("Users", "GET")
+	if err != nil {
+		log.Println("ERROR UserAllReq:", err)
+		return
+	} else {
+		log.Println("INFO User AllReq: User Information Recieved")
+	}
 
 	var bodyObject types.User
 	json.Unmarshal(res, &bodyObject)
@@ -158,9 +166,46 @@ func UserAddForm(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "objectaddform.html", context)
 }
 
-//UserDelForm is the form for deleting a user
-func UserDelForm(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "userdelform.html", nil)
+//UserDelFunc is the form for deleting a user
+func UserDelFunc(w http.ResponseWriter, r *http.Request) {
+	//for best UX we want the user to be returned to the page making
+	//the delete transaction, we use the r.Referer() function to get the link
+	redirectURL := utils.GetRedirectUrl(r.Referer())
+
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
+	}
+	log.Println("INFO UserDelFunc: Starting User Delete Process")
+
+	// Retrieve USerID from URL to send to Del Function
+	id, err := strconv.Atoi(r.URL.Path[len("/userdel/"):])
+	if err != nil {
+		log.Println("ERROR UserDelFunc:", err)
+		return
+	} else {
+		log.Println("INFO UserDelFunc: User ID to Delete:", id)
+	}
+
+	// Create Struct for passing data to SCIM API Delete Function
+	delObjectData := types.DelObjectRequest{
+		ResourceType: "users",
+		ID:           strconv.Itoa(id),
+	}
+
+	// Delete Group and recieve response from Delete Function
+	res, err := ScimApiDel(delObjectData)
+	if res == 204 {
+		log.Println("INFO UserDelFunc: UserDeleted:", id)
+		log.Println("INFO UserDelFunc: Valid HTTP StatusCode Recieved:", res)
+		log.Println("SUCCESS UserDelFunc: UserDelete Process Complete.")
+	} else {
+		log.Println(err)
+		log.Println("ERROR UserDelFunc: Invalid Http StatusCode Recieved:", res)
+		return
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 //UserAddReq is used to add users from the /useraddreq URL
@@ -170,33 +215,62 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Reading data from UserAddReq Form")
+	//for best UX we want the user to be returned to the page making
+	//the delete transaction, we use the r.Referer() function to get the link
+	redirectURL := utils.GetRedirectUrl(r.Referer())
+
+	log.Println("INFO UserAddReq: Reading data from UserAddReq Form")
 	uname := r.FormValue("FormUserName")
 	fname := r.FormValue("FormGivenName")
 	lname := r.FormValue("FormFamilyName")
 	udname := r.FormValue("FormDisplayName")
-	//uemail := r.FormValue("FormEmail")
+	uemail := r.FormValue("FormEmail")
 	upassword := r.FormValue("FormPassword")
 	scimschema := []string{"urn:ietf:params:scim:schemas:core:2.0:User"}
 
 	addUserData := types.PostUserRequest{
 		UserName: uname,
-		Name: types.FullName{
+		Name: types.Name{
 			FamilyName: fname,
 			GivenName:  lname,
 		},
 		DisplayName: udname,
-		Password:    upassword,
-		UserType:    "EPVUser",
-		Active:      true,
-		Schemas:     scimschema,
+		Emails: []types.Emails{
+			{
+				Type:    "Primary",
+				Value:   uemail,
+				Primary: true,
+			},
+		},
+		Password: upassword,
+		UserType: "EPVUser",
+		Active:   true,
+		Schemas:  scimschema,
 	}
 
 	// Required as placeholder
 	blankstruct := types.PostObjectRequest{}
 
-	res := ScimAPI("Containers", "POST", blankstruct, addUserData)
+	log.Println("INFO UserAddReq: Sending POST to SCIM server for user add.")
+	res, code, err := ScimAPI("Users", "POST", blankstruct, addUserData)
+	if code != 201 {
+		log.Println("ERROR UserAddReq: Error Adding User - Response StatusCode:", code)
+		log.Println("ERROR UserAddReq: Error Adding User", err)
+		return
+	} else {
+		log.Println("INFO UserAddReq: Recieved SCIM Response - Valid HTTP StatusCode:", code)
+	}
 
-	fmt.Println(string(res))
+	// Declare and unmarshal byte based response
+	log.Println("INFO UserAddReq: Parsing User Add SCIM Reponse.")
+	var bodyObject types.PostUserResponse
+	err = json.Unmarshal(res, &bodyObject)
+	if err != nil {
+		log.Println("ERROR UserAddReq:", err)
+		return
+	} else {
+		log.Println("SUCCESS UserAddReq: User Display Name and ID:", bodyObject.DisplayName, "-", bodyObject.ID)
+	}
 
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }

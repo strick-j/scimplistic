@@ -2,7 +2,6 @@ package views
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,7 +18,16 @@ func GroupAllReq(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve byte based object via BuildUrl function
-	res := BuildUrl("Groups", "GET")
+	log.Println("INFO GroupAllReq: Attempting to obtain Group Data from SCIM API.")
+	res, err := BuildUrl("Groups", "GET")
+	if err != nil {
+		log.Println("ERROR GroupAllReq:", err)
+		return
+	} else {
+		log.Println("INFO GroupAllReq: Group Information Recieved")
+	}
+
+	// TODO: Add Error Check here.
 
 	// Declare and unmarshal byte based response
 	var bodyObject types.Group
@@ -54,7 +62,7 @@ func GroupAllReq(w http.ResponseWriter, r *http.Request) {
 //GroupAddForm is the form for deleting a user
 func GroupAddForm(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("Initializing Add Group Form")
+	log.Println("INFO GroupAddForm: Initializing Add Group Form")
 
 	groupFormData := types.CreateForm{
 		FormAction: "/groupaddreq/",
@@ -94,7 +102,7 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 	//the delete transaction, we use the r.Referer() function to get the link
 	redirectURL := utils.GetRedirectUrl(r.Referer())
 
-	log.Println("Reading Data from Group Add Form")
+	log.Println("GroupAddReq: Reading Data from Group Add Form")
 	displayName := r.FormValue("FormGroupDisplayName")
 	scimschema := []string{"urn:ietf:params:scim:schemas:core:2.0:Group"}
 
@@ -106,9 +114,23 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 	// Required as placeholder
 	blankstruct := types.PostUserRequest{}
 
-	res := ScimAPI("Groups", "POST", addGroupData, blankstruct)
+	res, code, err := ScimAPI("Groups", "POST", addGroupData, blankstruct)
+	if code != 201 {
+		log.Println("GroupAddReq:", err)
+		http.Redirect(w, r, redirectURL, http.StatusFound)
+	} else {
+		log.Println("GroupAddReq: Group Added - Response StatusCode:", code)
+	}
 
-	fmt.Println(string(res))
+	// Declare and unmarshal byte based response
+	var bodyObject types.PostGroupResponse
+	err = json.Unmarshal(res, &bodyObject)
+	if err != nil {
+		log.Println("GroupAddReq:", err)
+		http.Redirect(w, r, redirectURL, http.StatusFound)
+	} else {
+		log.Println("GroupAddReq: Group Display Name and ID:", bodyObject.DisplayName, "-", bodyObject.ID)
+	}
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -123,14 +145,15 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}
+	log.Println("INFO GroupDelFunc: Starting Group Delete Process")
 
 	// Retrieve Group ID from URL to send to Del Function
 	id, err := strconv.Atoi(r.URL.Path[len("/groupdel/"):])
 	if err != nil {
-		log.Println("GroupDelFunc", err)
+		log.Println("ERROR GroupDelFunc:", err)
 		http.Redirect(w, r, redirectURL, http.StatusFound)
 	} else {
-		log.Println("Group ID Obtained: ", id)
+		log.Println("INFO GroupDelFunc: Group ID to Delete:", id)
 	}
 
 	// Create Struct for passing data to SCIM API Delete Function
@@ -142,10 +165,12 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	// Delete Group and recieve response from Delete Function
 	res, err := ScimApiDel(delObjectData)
 	if res == 204 {
-		log.Println("Group Deleted:", id)
-		log.Println("Valid http.StatusCode Recieved:", res)
+		log.Println("INFO GroupDelFunc: Group Deleted:", id)
+		log.Println("INFO GroupDelFunc: Valid HTTP StatusCode Recieved:", res)
+		log.Println("SUCCESS GroupDelFunc: Group Delete Process Complete.")
 	} else {
 		log.Println(err)
+		log.Println("ERROR GroupDelFunc: Invalid Http StatusCode Recieved:", res)
 	}
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)

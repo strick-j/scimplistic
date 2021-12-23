@@ -229,6 +229,7 @@ type FormFields struct {
 // Context is utilized for sending data to templates / forms
 type Context struct {
 	Navigation         string     `json:"navigation,omitempty"`
+	Message            string     `json:"message,omitempty"`
 	SettingsConfigured bool       `json:"settingsConfigured,omitempty"`
 	Token              string     `json:"authToken,omitempty"`
 	CreateForm         CreateForm `json:"createForm,omitempty"`
@@ -249,7 +250,7 @@ type ConfigSettings struct {
 // PostUser is the struct created for adding users
 type PostUserRequest struct {
 	UserName    string   `json:"userName"`
-	Name        FullName `json:"fullName,omitempty"`
+	Name        Name     `json:"fullName,omitempty"`
 	DisplayName string   `json:"displayName,omitempty"`
 	Password    string   `json:"password"`
 	UserType    string   `json:"userType,omitempty"`
@@ -264,7 +265,7 @@ type Emails struct {
 	Value   string `json:"value,omitempty"`
 }
 
-type FullName struct {
+type Name struct {
 	FamilyName string `json:"familyName,omitempty"`
 	GivenName  string `json:"givenName,omitempty"`
 }
@@ -304,4 +305,50 @@ type DelObjectRequest struct {
 	DisplayName  string    `json:"displayName"`
 	Members      []Members `json:"members,omitempty"`
 	Schemas      []string  `json:"schemas"`
+}
+
+// PostUserResponse contains the fields returned when a user is added
+type PostUserResponse struct {
+	UserName string `json:"userName"`
+	Name     struct {
+		Formatted string `json:"formatted"`
+		GivenName string `json:"givenName"`
+	} `json:"name"`
+	DisplayName string `json:"displayName"`
+	Active      bool   `json:"active"`
+	Emails      []struct {
+		Type    string `json:"type"`
+		Primary bool   `json:"primary"`
+		Value   string `json:"value"`
+	} `json:"emails"`
+	Schemas []string `json:"schemas"`
+	ID      string   `json:"id"`
+	Meta    struct {
+		ResourceType string    `json:"resourceType"`
+		Created      time.Time `json:"created"`
+		LastModified time.Time `json:"lastModified"`
+		Location     string    `json:"location"`
+	} `json:"meta"`
+}
+
+type PostSafeResponse struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+	Owner       struct {
+		Value   string `json:"value"`
+		Display string `json:"display"`
+	} `json:"owner"`
+	Schemas []string `json:"schemas"`
+	ID      string   `json:"id"`
+	Meta    struct {
+		ResourceType string    `json:"resourceType"`
+		Created      time.Time `json:"created"`
+		LastModified time.Time `json:"lastModified"`
+		Location     string    `json:"location"`
+	} `json:"meta"`
+	UrnIetfParamsScimSchemasCyberark11Safe struct {
+		NumberOfDaysRetention int `json:"NumberOfDaysRetention"`
+	} `json:"urn:ietf:params:scim:schemas:cyberark:1.1:Safe"`
 }

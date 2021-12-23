@@ -28,40 +28,16 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Home</a>
+            <a class='nav-link {{if eq .Navigation ""}} active {{end}}' aria-current="page" href="/">Home</a>
           </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Users
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/allusers/">Get</a></li>
-              <li><a class="dropdown-item" href="/useraddform/">Add</a></li>
-              <li><a class="dropdown-item" href="/userupdateform/">Update</a></li>
-              <li><a class="dropdown-item" href="/userdelform/">Delete</a></li>
-            </ul>
+          <li class="nav-item">
+            <a class='nav-link {{if eq .Navigation "Users"}} active {{end}}' href="/allusers/">Users</a>
           </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-disabled="true">
-              Groups
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/allgroups/">Get</a></li>
-              <li><a class="dropdown-item" href="/groupaddform/">Add</a></li>
-              <li><a class="dropdown-item" href="/groupupdateform/">Update</a></li>
-              <li><a class="dropdown-item" href="/groupdeleteform/">Delete</a></li>
-            </ul>
+          <li class="nav-item">
+            <a class='nav-link {{if eq .Navigation "Groups"}} active {{end}}' href="/allgroups/">Groups</a>
           </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-disabled="true">
-              Safes
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/allsafes/">Get</a></li>
-              <li><a class="dropdown-item" href="/safeaddform/" aria-disabled="true"> Add</a></li>
-              <li><a class="dropdown-item" href="/safeupdateform/" aria-disabled="true">Update</a></li>
-              <li><a class="dropdown-item" href="/safedeleteform/" aria-disabled="true">Delete</a></li>
-            </ul>
+          <li class="nav-item">
+            <a class='nav-link {{if eq .Navigation "Safes"}} active {{end}}' href="/allsafes/">Safes</a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Requests</a>
