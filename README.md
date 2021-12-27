@@ -40,16 +40,16 @@ This web app is in developement and should not be used in a production environme
 
 ## Screenshots
 Example Users Page:
-![Users Page](https://github.com/strick-j/blob/main/screenshots/users.png)
+![Users Page](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/users.png)
 
 Add User Form:
-![Add User Form](https://github.com/strick-j/blob/main/screenshots/adduserform.png)
+![Add User Form](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/adduserform.png)
 
 Example User Info:
-![User Info](https://github.com/strick-j/blob/main/screenshots/userinfo.png)
+![User Info](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/userinfo.png)
 
 Example Groups Page:
-![Groups](https://github.com/strick-j/blob/main/screenshots/groups.png)
+![Groups](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/groups.png)
 
 
 ## Acknowledgements
