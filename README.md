@@ -34,7 +34,6 @@ This web app is in developement and should not be used in a production environme
 ## Planned/Todo:
 - Build out update functions to allow for update of users, groups, safes
 - Add login/logout functionality
-- Place check box / confirmation infront of "Delete" functions
 - Create review function to examine all of a users access based on direct Safe Access and Group based access
 - Add database to track changes over time and allow for more complex queries (e.g. overall access)
 
