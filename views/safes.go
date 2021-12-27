@@ -110,10 +110,10 @@ func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}
-	log.Println("INFO SafeDelFunc: Starting User Delete Process")
+	log.Println("INFO SafeDelFunc: Starting Safe Delete Process")
 
 	// Retrieve USerID from URL to send to Del Function
-	safeName := r.URL.Path[len("/userdel/"):]
+	safeName := r.URL.Path[len("/safedel/"):]
 
 	if safeName == "" {
 		log.Println("ERROR SafeDelFunc: Could not determine Safe Name for Deletion.")
@@ -133,7 +133,7 @@ func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
 	if res == 204 {
 		log.Println("INFO SafeDelFunc: Safe Deleted:", safeName)
 		log.Println("INFO SafeDelFunc: Valid HTTP StatusCode Recieved:", res)
-		log.Println("SUCCESS SafeDelFunc: UserDelete Process Complete.")
+		log.Println("SUCCESS SafeDelFunc: Safe Delete Process Complete.")
 	} else {
 		log.Println(err)
 		log.Println("ERROR SafeDelFunc: Invalid Http StatusCode Recieved:", res)
@@ -173,8 +173,8 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 	log.Println("INFO SafeAddReq: Sending POST to SCIM server for Safe addition.")
 	res, code, err := ScimAPI("Containers", "POST", addSafeData, blankstruct)
 	if code != 201 {
-		log.Println("ERROR SafeAddReq: Error Adding User - Response StatusCode:", code)
-		log.Println("ERROR SafeAddReq: Error Adding User", err)
+		log.Println("ERROR SafeAddReq: Error Adding Safe - Response StatusCode:", code)
+		log.Println("ERROR SafeAddReq: Error Adding Safe", err)
 		return
 	} else {
 		log.Println("INFO SafeAddReq: Recieved SCIM Response - Valid HTTP StatusCode:", code)

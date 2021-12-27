@@ -81,7 +81,6 @@ func ScimAPI(target string, apimethod string, data types.PostObjectRequest, user
 		}
 	}
 	log.Println("INFO ScimAPI: Object data converted to JSON for Post.")
-	log.Println(payload)
 
 	// Generate target URL from passed target
 	finu := &url.URL{
@@ -113,12 +112,7 @@ func ScimAPI(target string, apimethod string, data types.PostObjectRequest, user
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	fmt.Println(res)
-
 	defer res.Body.Close()
-
-	// add check here for  status code. return success and response.
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {

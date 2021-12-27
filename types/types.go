@@ -277,7 +277,7 @@ type PostObjectRequest struct {
 	DisplayName string    `json:"displayName,omitempty"`
 	Description string    `json:"description,omitempty"`
 	Members     []Members `json:"members,omitempty"`
-	Schemas     []string  `json:"schemas"`
+	Schemas     []string  `json:"schemas,omitempty"`
 }
 
 type Members struct {

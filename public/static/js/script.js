@@ -7,29 +7,37 @@ $(document).ready(function(){
     /*on() is used instead of click because click can be used only on static elements, and on() is to be used when you add
     elements dynamically*/
     $('[data-toggle="tooltip"]').tooltip();
-  //    
-  //    $('.items').openOnHover(function(){
-  //        alert();
-  //    });
+
   
-    $('.floating-action-icon-add').click(function(){
+    $('.floating-action-icon-add').click( function(){
       $('#addUserModal').modal('show');
     });
-    
-    // $("#datepicker").datepicker();
-    
-    $('#editCatFrmBtn').click(function(){
-       $('#EditForm').toggleClass('hidden') 
-    });
-    
-    $('#searchFormBtn').click(function(){
-       $('#SearchForm').toggleClass('hidden') 
-    });
-    
-    $('#toggleAddFileGrp').click(function(){
-       $('#file-group').toggleClass('hidden');
-       $('#toggleAddFileGrp').addClass('hidden') ;
-    });  
+
+    // Build out modal for deleting objects based on bootstrap attributes
+    var deleteObjectModal = document.getElementById('deleteObjectModal')
+    deleteObjectModal.addEventListener('show.bs.modal', function (event) {
+      // Button that triggered the modal
+      var button = event.relatedTarget
+      // Extract info from data-bs-* attributes
+      var objectId= button.getAttribute('data-bs-id')
+      var objectType = button.getAttribute('data-bs-objecttype')
+      var displayName = button.getAttribute('data-bs-displayname')
+
+      // Update the modal's content.
+      var modalBodyWarning = deleteObjectModal.querySelector('.modal-body #delete-warning')
+
+      modalBodyWarning.textContent = 'Delete ' + objectType + ' "' + displayName + '"?'
+      
+      //Setup form action based on Object Type and ID
+      if (objectType == "group") {
+        $("#delObjectForm").attr("action","/groupdel/" + objectId);
+      } else if (objectType == "user") {
+        $("#delObjectForm").attr("action","/userdel/" + objectId);
+      } else if (objectType == "safe") {
+        $("#delObjectForm").attr("action","/safedel/" + objectId);
+      } else {}
+
+  })
     
     $("#noti").click(
         function(){
@@ -43,18 +51,8 @@ $(document).ready(function(){
     }
     $('.btnMessage').click(function(){$('.notification').fadeOut()})
   
-     /*$( document ).keypress(
-       function(event){
-         if ( event.which == 110 ) { //bind the 'n' key to add note
-             $('#addNoteModal').modal('show');
-          }
-          if (event.which==109  ) { //binds the 'm' key to show the navigation drawer
-            $('.sidebar-toggle').click();
-          }
-       }
-     );*/
-     
-     $("#addUserBtn").on("click", function() {
+      
+    $("#addUserBtn").on("click", function() {
          /*this.preventDefaults();
           var task_id = $("#task-id").val();
           $.ajax({
@@ -66,10 +64,9 @@ $(document).ready(function(){
           var response = res
           $("#timeline").append(response)
           });*/
+    });
+  
+    $('.toggle').click(function(){
+        $(this).next().toggle();
       });
-  
-  
-  $('.toggle').click(function(){
-       $(this).next().toggle();
-     });
-  });
+    });

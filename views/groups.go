@@ -195,6 +195,25 @@ func GroupUpdateForm(w http.ResponseWriter, r *http.Request) {
 	var bodyObject types.Group
 	json.Unmarshal(res, &bodyObject)
 
+	// Generate Struct for the Update Form that will be created
+	groupFormData := types.CreateForm{
+		FormAction: "/groupupdatereq/",
+		FormMethod: "POST",
+		FormLegend: "Update Group Form",
+		FormRole:   "updategroup",
+		FormFields: []types.FormFields{
+			{
+				FieldLabel:      "DisplayName",
+				FieldInputType:  "Text",
+				FieldInputName:  "FormGroupDisplayName",
+				FieldInFeedback: "Group Display Name is Required",
+				FieldIdNum:      1,
+				FieldPlaceHold:  bodyObject.Resources[0].DisplayName,
+				FieldDisabled:   true,
+			},
+		},
+	}
+
 	// Pass the context for the Update Form Page. Includes:
 	// Navigation Information
 	// Create Form Struct for Creating Form Layout

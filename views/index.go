@@ -9,7 +9,6 @@ import (
 	types "github.com/strick-j/go-form-webserver/types"
 )
 
-var err error
 var tpl *template.Template
 
 func init() {
@@ -19,7 +18,7 @@ func init() {
 func IndexReq(w http.ResponseWriter, r *http.Request) {
 	values, err := config.ReadConfig("config.json")
 	if err != nil {
-		log.Println("IndexReq", err)
+		log.Println("ERROR IndexReq:", err)
 	}
 
 	context := types.Context{
