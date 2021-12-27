@@ -22,7 +22,7 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 		log.Println("ERROR SafeAllReq:", err)
 		return
 	} else {
-		log.Println("INFO SafeAllReq: Group Information Recieved")
+		log.Println("INFO SafeAllReq: Safe Information Recieved")
 	}
 
 	var bodyObject types.Safes
@@ -78,10 +78,10 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
 
-//UserAddForm is the form for collecting data to add a new user
+// SafeAddForm is the form for collecting data to add a new Safe
 func SafeAddForm(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("Initializing Add Safe Form")
+	log.Printf("INFO SafeAddForm: Initializing Add Safe Form")
 
 	safeFormData := types.CreateForm{
 		FormAction: "/safeaddreq/",

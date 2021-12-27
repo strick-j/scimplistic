@@ -1,15 +1,15 @@
 {{template "_head.html" .}}
 
-<!-- End Main Header -->
+  <!-- End Main Header -->
 
-<!-- Place Add Button for Page - Triggers script.js -->
-<div class="position-relative">  
-  <button class="btn-primary btn floating-action-icon floating-action-icon-add">
-    <span class="position-absolute fs-1 bi bi-plus top-50 start-50 translate-middle"></span>
-  </button>
-</div>
+  <!-- Place Add Button for Page - Triggers script.js -->
+  <div class="position-relative">  
+    <button class="btn-primary btn floating-action-icon floating-action-icon-add">
+      <span class="position-absolute fs-1 bi bi-plus top-50 start-50 translate-middle"></span>
+    </button>
+  </div>
 
-<!-- Modal triggered by Add Button / script.js-->
+  <!-- Modal triggered by Add Button / script.js-->
   <div class="modal" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="new{{.Navigation}}Label" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -95,187 +95,231 @@
       </div>
     </div>
     <div class="row justify-content-md-center mb-3">
-      {{ if .Safes}} {{ $value := .Safes}}
-      {{range $value.Resources}}
-      <div class="accordion" id="safeAccordion">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="heading{{ .UniqueSafeId}}">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-              data-bs-target="#collapse{{ .UniqueSafeId}}" aria-expanded="false"
-              aria-controls="collapse{{ .UniqueSafeId}}">
-              {{.DisplayName}}
-            </button>
-          </h2>
-          <div id="collapse{{ .UniqueSafeId}}" class="accordion-collapse collapse"
-            aria-labelledby="heading{{ .UniqueSafeId}}" data-bs-parent="#safeAccordian">
-            <div class="accordion-body">
-              <strong>Description: </strong>{{ .Description}} <br>
-              <strong>Vault Safe ID: </strong>{{ .ID}} <br>
-              <strong>Owner: </strong>{{.Owner.Display}} <br>
-              <strong>Created: </strong>{{ .Meta.Created}} <br>
-              <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
-              <strong>Retention Days: </strong>{{.UrnIetfParamsScimSchemasCyberark11Safe.NumberOfDaysRetention}} <br>
-              <strong>Managing CPM: </strong> {{.UrnIetfParamsScimSchemasCyberark11Safe.ManagingCPM}} <br>
-              <strong>Privileged Objects</strong>
-              <table class="table table-sm table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">DisplayName</th>
-                    <th scope="col">Reference</th>
-                  </tr>
-                </thead>
-              {{range .PrivilegedData}}
-              <tbody>
-                <tr>
-                  <th scope="row">{{.Value}}</th>
-                  <td>{{.Display}}</td>
-                  <td>{{.Ref}}</td>
-                </tr>
-              {{end}}
-              </tbody>
-              </table>
-              <div class="d-flex flex-row-reverse bd-highlight mb-3">
-                <a href="/safedel/{{.Name}}">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
-                      <span class="visually-hidden">Delete</span>
-                    </div>
+      <div class="col">
+        {{ if .Safes}} {{ $value := .Safes}}
+        {{range $value.Resources}}
+        <div class="accordion" id="safeAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ .UniqueSafeId}}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse{{ .UniqueSafeId}}" aria-expanded="false"
+                aria-controls="collapse{{ .UniqueSafeId}}">
+                {{.DisplayName}}
+              </button>
+            </h2>
+            <div id="collapse{{ .UniqueSafeId}}" class="accordion-collapse collapse"
+              aria-labelledby="heading{{ .UniqueSafeId}}" data-bs-parent="#safeAccordian">
+              <div class="accordion-body">
+                <strong>Description: </strong>{{ .Description}} <br>
+                <strong>Vault Safe ID: </strong>{{ .ID}} <br>
+                <strong>Owner: </strong>{{ .Owner.Display}} <br>
+                <strong>Created: </strong>{{ .Meta.Created}} <br>
+                <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
+                {{ if .PrivilegedData}}
+                <strong>Privileged Objects:</strong>
+                <div class="row">
+                  <div class="col ps-5">
+                    <table class="table table-sm table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">ID</th>
+                          <th scope="col">DisplayName</th>
+                          <th scope="col">Reference</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {{range .PrivilegedData}}
+                      <tr>
+                        <th scope="row">{{.Value}}</th>
+                        <td>{{.Display}}</td>
+                        <td>{{.Ref}}</td>
+                      </tr>
+                    {{end}}
+                    </tbody>
+                    </table>
                   </div>
-                </a>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
-                      <span class="visually-hidden">Edit</span>
+                </div>
+                {{end}}
+                <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                  <a href="/safedel/{{.Name}}">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
+                        <span class="visually-hidden">Delete</span>
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                  <a href="#">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                        <span class="visually-hidden">Edit</span>
+                      </div>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-secondary bi bi-search">
+                        <span class="visually-hidden">Edit</span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      {{end}}
-      {{end}}
-      {{ if .Users}} {{ $value := .Users}}
-      {{range $value.Resources}}
-      <div class="accordion accordian-flush" id="userAccordion">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="heading{{ .ID}}">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-              data-bs-target="#collapse{{ .ID}}" aria-expanded="false" aria-controls="collapse{{ .ID}}">
-              {{ .DisplayName}}
-            </button>
-          </h2>
-          <div id="collapse{{ .ID}}" class="accordion-collapse collapse" aria-labelledby="heading{{ .ID}}"
-            data-bs-parent="#userAccordian">
-            <div class="accordion-body">
-              <strong>First Name: </strong>{{ .Name.GivenName}} <br>
-              <strong>Last Name: </strong>{{ .Name.FamilyName}} <br>
-              <strong>Vault User ID: </strong>{{ .ID}} <br>
-              <strong>User Type: </strong>{{ .UserType}} <br>
-              <strong>Active: </strong> {{ .Active}} <br>
-              <strong>Entitlements: </strong>{{ .Entitlements}} <br>
-              <strong>Created: </strong>{{ .Meta.Created}} <br>
-              <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
-              <strong>Groups:</strong> <br>
-              <table class="table table-sm table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">Group ID</th>
-                    <th scope="col">DisplayName</th>
-                    <th scope="col">Type</th>
-                  </tr>
-                </thead>
-              {{range .Groups}}
-              <tbody>
-                <tr>
-                  <th scope="row">{{.Value}}</th>
-                  <td>{{.Display}}</td>
-                  <td>{{.Type}}</td>
-                </tr>
-              {{end}}
-              </tbody>
-              </table>
-              <div class="d-flex flex-row-reverse bd-highlight mb-3">
-                <a href="/userdel/{{.ID}}">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
-                      <span class="visually-hidden">Delete</span>
-                    </div>
+        {{end}}
+        {{end}}
+        {{ if .Users}} {{ $value := .Users}}
+        {{range $value.Resources}}
+        <div class="accordion accordian-flush" id="userAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ .ID}}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse{{ .ID}}" aria-expanded="false" aria-controls="collapse{{ .ID}}">
+                {{ .DisplayName}}
+              </button>
+            </h2>
+            <div id="collapse{{ .ID}}" class="accordion-collapse collapse" aria-labelledby="heading{{ .ID}}"
+              data-bs-parent="#userAccordian">
+              <div class="accordion-body">
+                <strong>First Name: </strong>{{ .Name.GivenName}} <br>
+                <strong>Last Name: </strong>{{ .Name.FamilyName}} <br>
+                <strong>Vault User ID: </strong>{{ .ID}} <br>
+                <strong>User Type: </strong>{{ .UserType}} <br>
+                <strong>Active: </strong> {{ .Active}} <br>
+                {{ if .Entitlements}}
+                <strong>Entitlements: </strong>
+                {{range .Entitlements}}
+                <div class="row">
+                  <div class="col ps-5">{{ .}} </div>
+                </div>
+                {{end}}
+                {{end}}
+                <strong>Created: </strong>{{ .Meta.Created}} <br>
+                <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
+                {{ if .Groups}}
+                <strong>Groups:</strong> <br>
+                <div class="row">
+                  <div class="col ps-5">
+                    <table class="table table-sm table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">Group ID</th>
+                          <th scope="col">DisplayName</th>
+                          <th scope="col">Type</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {{range .Groups}}
+                      <tr>
+                        <th scope="row">{{.Value}}</th>
+                        <td>{{.Display}}</td>
+                        <td>{{.Type}}</td>
+                      </tr>
+                      {{end}}
+                    </tbody>
+                    </table>
                   </div>
-                </a>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
-                      <span class="visually-hidden">Edit</span>
+                </div>
+                {{end}}
+                <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                  <a href="/userdel/{{.ID}}">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
+                        <span class="visually-hidden">Delete</span>
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                  <a href="#">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                        <span class="visually-hidden">Edit</span>
+                      </div>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-secondary bi bi-search">
+                        <span class="visually-hidden">Edit</span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      {{end}}
-      {{end}}
-      {{ if .Groups}} {{ $value := .Groups}}
-      {{range $value.Resources}}
-      <div class="accordion" id="groupAccordion">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="heading{{ .ID}}">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-              data-bs-target="#collapse{{ .ID}}" aria-expanded="false" aria-controls="collapse{{ .ID}}">
-              {{ .DisplayName}}
-            </button>
-          </h2>
-          <div id="collapse{{ .ID}}" class="accordion-collapse collapse" aria-labelledby="heading{{ .ID}}"
-            data-bs-parent="#groupAccordian">
-            <div class="accordion-body">
-              <strong>Vault Group ID: </strong>{{ .ID}} <br>
-              <strong>Created: </strong>{{ .Meta.Created}} <br>
-              <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
-              <strong>Members:</strong> <br>
-              <table class="table table-sm table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">DisplayName</th>
-                    <th scope="col">Reference</th>
-                  </tr>
-                </thead>
-              {{range .Members}}
-              <tbody>
-                <tr>
-                  <th scope="row">{{.Value}}</th>
-                  <td>{{.Display}}</td>
-                  <td>{{.Ref}}</td>
-                </tr>
-              {{end}}
-              </tbody>
-              </table>
-              <div class="d-flex flex-row-reverse bd-highlight mb-3">
-                <a href="/groupdel/{{.ID}}">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
-                      <span class="visually-hidden">Delete</span>
-                    </div>
+        {{end}}
+        {{end}}
+        {{ if .Groups}} {{ $value := .Groups}}
+        {{range $value.Resources}}
+        <div class="accordion" id="groupAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ .ID}}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse{{ .ID}}" aria-expanded="false" aria-controls="collapse{{ .ID}}">
+                {{ .DisplayName}}
+              </button>
+            </h2>
+            <div id="collapse{{ .ID}}" class="accordion-collapse collapse" aria-labelledby="heading{{ .ID}}"
+              data-bs-parent="#groupAccordian">
+              <div class="accordion-body">
+                <strong>Vault Group ID: </strong>{{ .ID}} <br>
+                <strong>Created: </strong>{{ .Meta.Created}} <br>
+                <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
+                <strong>Members:</strong> <br>
+                <div class="row">
+                  <div class="col ps-5">
+                    <table class="table table-sm table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">ID</th>
+                          <th scope="col">DisplayName</th>
+                          <th scope="col">Reference</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {{range .Members}}
+                      <tr>
+                        <th scope="row">{{.Value}}</th>
+                        <td>{{.Display}}</td>
+                        <td>{{.Ref}}</td>
+                      </tr>
+                      {{end}}
+                      </tbody>
+                    </table>
                   </div>
-                </a>
-                <a href="/groupupdate/{{.DisplayName}}">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
-                      <span class="visually-hidden">Edit</span>
+                </div>
+                <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                  <a href="/groupdel/{{.ID}}">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-danger bi bi-trash-fill">
+                        <span class="visually-hidden">Delete</span>
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                  <a href="/groupupdate/{{.DisplayName}}">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                        <span class="visually-hidden">Edit</span>
+                      </div>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="ps-2 bd-highlight">
+                      <div type="button" class="btn btn-outline-secondary bi bi-search">
+                        <span class="visually-hidden">Edit</span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        {{end}}
+        {{end}}
       </div>
-      {{end}}
-      {{end}}
     </div>
   </div>
 
@@ -285,6 +329,10 @@
 	<script src="/static/js/script.js"></script>
 	<script src="/static/js/formvalidate.js"></script>
 
-	</body>
+  <!-- End Content-->
+  </main>
+  {{template "_footer.html" .}}
 
-	</html>
+</body>
+
+</html>

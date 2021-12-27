@@ -168,7 +168,7 @@ type Safes struct {
 	Resources    []struct {
 		Name        string `json:"name"`
 		DisplayName string `json:"displayName"`
-		Description string `json:"description"`
+		Description string `json:"description,omitempty"`
 		Type        string `json:"type"`
 		Owner       struct {
 			Value   string `json:"value"`
@@ -176,9 +176,9 @@ type Safes struct {
 			Display string `json:"display"`
 		} `json:"owner"`
 		PrivilegedData []struct {
-			Value   string `json:"value"`
-			Ref     string `json:"$ref"`
-			Display string `json:"display"`
+			Value   string `json:"value,omitempty"`
+			Ref     string `json:"$ref,omitempty"`
+			Display string `json:"display,omitempty"`
 		} `json:"privilegedData"`
 		Schemas []string `json:"schemas"`
 		ID      string   `json:"id"`
@@ -189,8 +189,8 @@ type Safes struct {
 			Location     string    `json:"location"`
 		} `json:"meta"`
 		UrnIetfParamsScimSchemasCyberark11Safe struct {
-			NumberOfDaysRetention int    `json:"NumberOfDaysRetention"`
-			ManagingCPM           string `json:"ManagingCPM"`
+			NumberOfDaysRetention int    `json:"NumberOfDaysRetention,omitempty"`
+			ManagingCPM           string `json:"ManagingCPM,omitempty"`
 		} `json:"urn:ietf:params:scim:schemas:cyberark:1.1:Safe"`
 		UniqueSafeId string `json:"uniqueSafeId"`
 	} `json:"Resources"`

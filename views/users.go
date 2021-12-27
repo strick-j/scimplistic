@@ -178,7 +178,7 @@ func UserDelFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("INFO UserDelFunc: Starting User Delete Process")
 
-	// Retrieve USerID from URL to send to Del Function
+	// Retrieve UserID from URL to send to Del Function
 	id, err := strconv.Atoi(r.URL.Path[len("/userdel/"):])
 	if err != nil {
 		log.Println("ERROR UserDelFunc:", err)
@@ -193,7 +193,7 @@ func UserDelFunc(w http.ResponseWriter, r *http.Request) {
 		ID:           strconv.Itoa(id),
 	}
 
-	// Delete Group and recieve response from Delete Function
+	// Delete User and recieve response from Delete Function
 	res, err := ScimApiDel(delObjectData)
 	if res == 204 {
 		log.Println("INFO UserDelFunc: UserDeleted:", id)

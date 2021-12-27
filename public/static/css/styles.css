@@ -3,13 +3,6 @@
 Layout
 -------------------------------------- */
 
-
-.footer {
-  height: 30px;
-  width: auto;
-  text-align: center;
-}
-
 .floating-action-icon {
   position: fixed;
   bottom: 40px;
