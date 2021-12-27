@@ -9,6 +9,7 @@ import (
 	types "github.com/strick-j/go-form-webserver/types"
 )
 
+var err error
 var tpl *template.Template
 
 func init() {

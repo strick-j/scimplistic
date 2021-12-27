@@ -10,6 +10,67 @@ import (
 	"github.com/strick-j/go-form-webserver/utils"
 )
 
+// Generate Struct for the forms required by GroupFunctions
+// Form Data is used by several functions (add, get, update, etc...)
+var userFormData = types.CreateForm{
+	FormAction: "/useraddreq/",
+	FormMethod: "POST",
+	FormLegend: "Add User Form",
+	FormRole:   "adduser",
+	FormFields: []types.FormFields{
+		{
+			FieldLabel:      "Username",
+			FieldLabelText:  "Username",
+			FieldInputType:  "Text",
+			FieldRequired:   true,
+			FieldInputName:  "FormUserName",
+			FieldInFeedback: "Username is required.",
+			FieldIdNum:      1,
+		},
+		{
+			FieldLabel:     "givenName",
+			FieldLabelText: "First Name",
+			FieldInputType: "Text",
+			FieldRequired:  false,
+			FieldInputName: "FormGivenName",
+			FieldDescBy:    "givenHelp",
+			FieldHelp:      "Optional",
+			FieldIdNum:     2,
+		},
+		{
+			FieldLabel:     "familyName",
+			FieldLabelText: "Last Name",
+			FieldInputType: "Text",
+			FieldRequired:  false,
+			FieldInputName: "FormFamilyName",
+			FieldDescBy:    "familyHelp",
+			FieldHelp:      "Optional",
+			FieldIdNum:     3,
+		},
+		{
+			FieldLabel:     "inputEmail",
+			FieldLabelText: "Email Address",
+			FieldInputType: "email",
+			FieldRequired:  false,
+			FieldInputName: "FormEmail",
+			FieldPlaceHold: "username@acme.com",
+			FieldIdNum:     4,
+		},
+		{
+			FieldLabel:      "inputPassword",
+			FieldLabelText:  "User Password",
+			FieldInputType:  "password",
+			FieldRequired:   true,
+			FieldInputName:  "FormPassword",
+			FieldDescBy:     "PasswordHelp",
+			FieldHelp:       "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
+			FieldInFeedback: "Password is required.",
+
+			FieldIdNum: 5,
+		},
+	},
+}
+
 //UserAllReq is the function for requesting user info for collecting data to add a new user
 func UserAllReq(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -17,6 +78,8 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Retrieve byte based object via BuildUrl function
+	log.Println("INFO UserAllReq: Attempting to obtain User Data from SCIM API.")
 	res, err := BuildUrl("Users", "GET")
 	if err != nil {
 		log.Println("ERROR UserAllReq:", err)
@@ -25,68 +88,11 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 		log.Println("INFO User AllReq: User Information Recieved")
 	}
 
+	// Declare and unmarshal byte based response
 	var bodyObject types.User
 	json.Unmarshal(res, &bodyObject)
 
-	userFormData := types.CreateForm{
-		FormAction: "/useraddreq/",
-		FormMethod: "POST",
-		FormLegend: "Add User Form",
-		FormRole:   "adduser",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "Username",
-				FieldLabelText:  "Username",
-				FieldInputType:  "Text",
-				FieldRequired:   true,
-				FieldInputName:  "FormUserName",
-				FieldInFeedback: "Username is required.",
-				FieldIdNum:      1,
-			},
-			{
-				FieldLabel:     "givenName",
-				FieldLabelText: "First Name",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormGivenName",
-				FieldDescBy:    "givenHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     2,
-			},
-			{
-				FieldLabel:     "familyName",
-				FieldLabelText: "Last Name",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormFamilyName",
-				FieldDescBy:    "familyHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     3,
-			},
-			{
-				FieldLabel:     "inputEmail",
-				FieldLabelText: "Email Address",
-				FieldInputType: "email",
-				FieldRequired:  false,
-				FieldInputName: "FormEmail",
-				FieldPlaceHold: "username@acme.com",
-				FieldIdNum:     4,
-			},
-			{
-				FieldLabel:      "inputPassword",
-				FieldLabelText:  "User Password",
-				FieldInputType:  "password",
-				FieldRequired:   true,
-				FieldInputName:  "FormPassword",
-				FieldDescBy:     "PasswordHelp",
-				FieldHelp:       "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
-				FieldInFeedback: "Password is required.",
-
-				FieldIdNum: 5,
-			},
-		},
-	}
-
+	// Establish context for populating allinfo template
 	context := types.Context{
 		Navigation: "Users",
 		CreateForm: userFormData,
@@ -98,66 +104,9 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 
 //UserAddForm is the form for collecting data to add a new user
 func UserAddForm(w http.ResponseWriter, r *http.Request) {
+	log.Println("INFO GroupAddForm: Initializing Add Group Form")
 
-	userFormData := types.CreateForm{
-		FormAction: "/useraddreq/",
-		FormMethod: "POST",
-		FormLegend: "Add User Form",
-		FormRole:   "adduser",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "Username",
-				FieldLabelText:  "Username",
-				FieldInputType:  "Text",
-				FieldRequired:   true,
-				FieldInputName:  "FormUserName",
-				FieldInFeedback: "Username is required.",
-				FieldIdNum:      1,
-			},
-			{
-				FieldLabel:     "givenName",
-				FieldLabelText: "First Name",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormGivenName",
-				FieldDescBy:    "givenHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     2,
-			},
-			{
-				FieldLabel:     "familyName",
-				FieldLabelText: "Last Name",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormFamilyName",
-				FieldDescBy:    "familyHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     3,
-			},
-			{
-				FieldLabel:     "inputEmail",
-				FieldLabelText: "Email Address",
-				FieldInputType: "email",
-				FieldRequired:  false,
-				FieldInputName: "FormEmail",
-				FieldPlaceHold: "username@acme.com",
-				FieldIdNum:     4,
-			},
-			{
-				FieldLabel:      "inputPassword",
-				FieldLabelText:  "User Password",
-				FieldInputType:  "password",
-				FieldRequired:   true,
-				FieldInputName:  "FormPassword",
-				FieldDescBy:     "PasswordHelp",
-				FieldHelp:       "User password must be 8-20 characters long, contain letters and numbers, and a special character. It must not contain spaces, special characters, or emoji.",
-				FieldInFeedback: "Password is required.",
-
-				FieldIdNum: 5,
-			},
-		},
-	}
-
+	// Establish context for populating add group template
 	context := types.Context{
 		Navigation: "Add User",
 		CreateForm: userFormData,

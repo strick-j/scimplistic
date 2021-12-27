@@ -10,6 +10,45 @@ import (
 	"github.com/strick-j/go-form-webserver/utils"
 )
 
+// Generate Struct for the forms required by Safe Functions
+// Form Data is used by several functions (add, get, update, etc...)
+var safeFormData = types.CreateForm{
+	FormAction: "/safeaddreq/",
+	FormMethod: "POST",
+	FormLegend: "Add Safe Form",
+	FormFields: []types.FormFields{
+		{
+			FieldLabel:      "SafeName",
+			FieldLabelText:  "Safe Name",
+			FieldInputType:  "Text",
+			FieldRequired:   true,
+			FieldInputName:  "FormSafeName",
+			FieldInFeedback: "Safe Name is Required.",
+			FieldIdNum:      1,
+		},
+		{
+			FieldLabel:     "DisplayName",
+			FieldLabelText: "Safe Display Name",
+			FieldInputType: "Text",
+			FieldRequired:  false,
+			FieldInputName: "FormSafeDisplayName",
+			FieldDescBy:    "displayHelp",
+			FieldHelp:      "Optional",
+			FieldIdNum:     2,
+		},
+		{
+			FieldLabel:     "SafeDescription",
+			FieldLabelText: "Description",
+			FieldInputType: "Text",
+			FieldRequired:  false,
+			FieldInputName: "FormSafeDescription",
+			FieldDescBy:    "descHelp",
+			FieldHelp:      "Optional",
+			FieldIdNum:     3,
+		},
+	},
+}
+
 //SafeAllReq is the function for requesting user info for collecting data to add a new user
 func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -17,6 +56,8 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Retrieve byte based object via BuildUrl function
+	log.Println("INFO SafeAllReq: Attempting to obtain Safe Data from SCIM API.")
 	res, err := BuildUrl("Containers", "GET")
 	if err != nil {
 		log.Println("ERROR SafeAllReq:", err)
@@ -25,6 +66,7 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 		log.Println("INFO SafeAllReq: Safe Information Recieved")
 	}
 
+	// Declare and unmarshal byte based response
 	var bodyObject types.Safes
 	json.Unmarshal(res, &bodyObject)
 
@@ -33,97 +75,24 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 		bodyObject.Resources[i].UniqueSafeId = strconv.Itoa(i)
 	}
 
-	safeFormData := types.CreateForm{
-		FormAction: "/safeaddreq/",
-		FormMethod: "POST",
-		FormLegend: "Add Safe Form",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "SafeName",
-				FieldLabelText:  "Safe Name",
-				FieldInputType:  "Text",
-				FieldRequired:   true,
-				FieldInputName:  "FormSafeName",
-				FieldInFeedback: "Safe Name is Required.",
-				FieldIdNum:      1,
-			},
-			{
-				FieldLabel:     "DisplayName",
-				FieldLabelText: "Safe Display Name",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormSafeDisplayName",
-				FieldDescBy:    "displayHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     2,
-			},
-			{
-				FieldLabel:     "SafeDescription",
-				FieldLabelText: "Description",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormSafeDescription",
-				FieldDescBy:    "descHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     3,
-			},
-		},
-	}
-
+	// Establish context for populating allinfo template
 	context := types.Context{
 		Navigation: "Safes",
 		CreateForm: safeFormData,
 		Safes:      bodyObject,
 	}
+
 	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
 
 // SafeAddForm is the form for collecting data to add a new Safe
 func SafeAddForm(w http.ResponseWriter, r *http.Request) {
-
 	log.Printf("INFO SafeAddForm: Initializing Add Safe Form")
 
-	safeFormData := types.CreateForm{
-		FormAction: "/safeaddreq/",
-		FormMethod: "POST",
-		FormLegend: "Add Safe Form",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "SafeName",
-				FieldLabelText:  "Safe Name",
-				FieldInputType:  "Text",
-				FieldRequired:   true,
-				FieldInputName:  "FormSafeName",
-				FieldInFeedback: "Safe Name is Required.",
-				FieldIdNum:      1,
-			},
-			{
-				FieldLabel:     "DisplayName",
-				FieldLabelText: "Safe Display Name",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormSafeDisplayName",
-				FieldDescBy:    "displayHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     2,
-			},
-			{
-				FieldLabel:     "SafeDescription",
-				FieldLabelText: "Description",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormSafeDescription",
-				FieldDescBy:    "descHelp",
-				FieldHelp:      "Optional",
-				FieldIdNum:     3,
-			},
-		},
-	}
-
+	// Establish context for populating add safe template
 	context := types.Context{
-		Navigation:         "Add Safe",
-		SettingsConfigured: false,
-		CreateForm:         safeFormData,
+		Navigation: "Add Safe",
+		CreateForm: safeFormData,
 	}
 
 	// Pass form data to form template to dynamically build form

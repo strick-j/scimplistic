@@ -10,6 +10,25 @@ import (
 	"github.com/strick-j/go-form-webserver/utils"
 )
 
+// Generate Struct for the forms required by GroupFunctions
+// Form Data is used by several functions (add, get, update, etc...)
+var groupFormData = types.CreateForm{
+	FormAction: "/groupaddreq/",
+	FormMethod: "POST",
+	FormLegend: "Add Group Form",
+	FormFields: []types.FormFields{
+		{
+			FieldLabel:      "DisplayName",
+			FieldLabelText:  "Group Display Name",
+			FieldInputType:  "Text",
+			FieldRequired:   true,
+			FieldInputName:  "FormGroupDisplayName",
+			FieldInFeedback: "Group Display Name is Required",
+			FieldIdNum:      1,
+		},
+	},
+}
+
 //GroupAllReq is the function for requesting user info for collecting data to add a new user
 func GroupAllReq(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -27,29 +46,11 @@ func GroupAllReq(w http.ResponseWriter, r *http.Request) {
 		log.Println("INFO GroupAllReq: Group Information Recieved")
 	}
 
-	// TODO: Add Error Check here.
-
 	// Declare and unmarshal byte based response
 	var bodyObject types.Group
 	json.Unmarshal(res, &bodyObject)
 
-	groupFormData := types.CreateForm{
-		FormAction: "/groupaddreq/",
-		FormMethod: "POST",
-		FormLegend: "Add Group Form",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "DisplayName",
-				FieldLabelText:  "Group Display Name",
-				FieldInputType:  "Text",
-				FieldRequired:   true,
-				FieldInputName:  "FormGroupDisplayName",
-				FieldInFeedback: "Group Display Name is Required",
-				FieldIdNum:      1,
-			},
-		},
-	}
-
+	// Establish context for populating allinfo template
 	context := types.Context{
 		Navigation: "Groups",
 		CreateForm: groupFormData,
@@ -61,30 +62,12 @@ func GroupAllReq(w http.ResponseWriter, r *http.Request) {
 
 //GroupAddForm is the form for deleting a user
 func GroupAddForm(w http.ResponseWriter, r *http.Request) {
-
 	log.Println("INFO GroupAddForm: Initializing Add Group Form")
 
-	groupFormData := types.CreateForm{
-		FormAction: "/groupaddreq/",
-		FormMethod: "POST",
-		FormLegend: "Add Group Form",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "DisplayName",
-				FieldLabelText:  "Group Display Name",
-				FieldInputType:  "Text",
-				FieldRequired:   true,
-				FieldInputName:  "FormGroupDisplayName",
-				FieldInFeedback: "Group Display Name is Required",
-				FieldIdNum:      1,
-			},
-		},
-	}
-
+	// Establish context for populating add group template
 	context := types.Context{
-		Navigation:         "Add Group",
-		SettingsConfigured: false,
-		CreateForm:         groupFormData,
+		Navigation: "Add Group",
+		CreateForm: groupFormData,
 	}
 
 	// Pass form data to form template to dynamically build form
@@ -211,26 +194,6 @@ func GroupUpdateForm(w http.ResponseWriter, r *http.Request) {
 	// Declare and unmarshal byte based response
 	var bodyObject types.Group
 	json.Unmarshal(res, &bodyObject)
-
-	// Generate Struct for the Update Form that will be created
-	groupFormData := types.CreateForm{
-		FormAction: "/groupupdatereq/",
-		FormMethod: "POST",
-		FormLegend: "Update Group Form",
-		FormRole:   "updategroup",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:      "DisplayName",
-				FieldLabelText:  "Group Display Name",
-				FieldInputType:  "Text",
-				FieldInputName:  "FormGroupDisplayName",
-				FieldInFeedback: "Group Display Name is Required",
-				FieldIdNum:      1,
-				FieldPlaceHold:  bodyObject.Resources[0].DisplayName,
-				FieldDisabled:   true,
-			},
-		},
-	}
 
 	// Pass the context for the Update Form Page. Includes:
 	// Navigation Information
