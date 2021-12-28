@@ -37,6 +37,7 @@ This web app is in developement and should not be used in a production environme
 - Create review function to examine all of a users access based on direct Safe Access and Group based access
 - Add database to track changes over time and allow for more complex queries (e.g. overall access)
 - Add notifications for action completion status (Success / Failure / etc...)
+- Add support for https
 
 ## Screenshots
 Example Users Page:
