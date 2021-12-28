@@ -6,9 +6,9 @@ Scimplistic is a simplistic Go webapp to manage tasks, I built this tool to demo
 via Script: `bash install.sh`
 
 ### Manual
-1. `go get github.com/strick-j/go-form-webserver`
+1. `go get github.com/strick-j/scimplistic`
 2. Change dir to respective folder and run go-build
-3. `./go-form-webserver`
+3. `./scimplistic`
 4. Open localhost:8080
 
 ### Setup
@@ -39,16 +39,16 @@ This web app is in developement and should not be used in a production environme
 
 ## Screenshots
 Example Users Page:
-![Users Page](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/users.png)
+![Users Page](https://github.com/strick-j/scimplistic/blob/main/screenshots/users.png)
 
 Add User Form:
-![Add User Form](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/adduserform.png)
+![Add User Form](https://github.com/strick-j/scimplistic/blob/main/screenshots/adduserform.png)
 
 Example User Info:
-![User Info](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/userinfo.png)
+![User Info](https://github.com/strick-j/scimplistic/blob/main/screenshots/userinfo.png)
 
 Example Groups Page:
-![Groups](https://github.com/strick-j/go-form-webserver/blob/main/screenshots/groups.png)
+![Groups](https://github.com/strick-j/scimplistic/blob/main/screenshots/groups.png)
 
 
 ## Acknowledgements

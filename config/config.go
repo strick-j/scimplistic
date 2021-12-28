@@ -1,10 +1,3 @@
-/*
-Configuration package is used to read the configuration file
-config.json which stores the server port for current implementation
-    {
-        "ServerPort": ":8081"
-    }
-*/
 package config
 
 import (
@@ -12,14 +5,14 @@ import (
 	"io/ioutil"
 	"log"
 
-	types "github.com/strick-j/go-form-webserver/types"
+	"github.com/strick-j/scimplistic/types"
 )
 
 var err error
 var config types.ConfigSettings
 
-//ReadConfig will read the configuration json file to read the parameters
-//which will be passed in the config file
+// ReadConfig will read the configuration json file to read the parameters
+// which will be passed in the config file
 func ReadConfig(fileName string) (types.ConfigSettings, error) {
 	configFile, err := ioutil.ReadFile(fileName)
 	if err != nil {

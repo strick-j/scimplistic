@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	config "github.com/strick-j/go-form-webserver/config"
-	types "github.com/strick-j/go-form-webserver/types"
+	"github.com/strick-j/scimplistic/config"
+	"github.com/strick-j/scimplistic/types"
 )
 
 var tpl *template.Template

@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
-	config "github.com/strick-j/go-form-webserver/config"
-	"github.com/strick-j/go-form-webserver/types"
+	"github.com/strick-j/scimplistic/config"
+	"github.com/strick-j/scimplistic/types"
 )
 
 func BuildUrl(target string, apimethod string) ([]byte, error) {

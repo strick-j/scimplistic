@@ -1,3 +1,3 @@
-module github.com/strick-j/go-form-webserver
+module github.com/strick-j/scimplistic
 
 go 1.17

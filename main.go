@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/strick-j/go-form-webserver/views"
+	"github.com/strick-j/scimplistic/views"
 )
 
 func main() {

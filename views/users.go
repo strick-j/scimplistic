@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	types "github.com/strick-j/go-form-webserver/types"
-	"github.com/strick-j/go-form-webserver/utils"
+	"github.com/strick-j/scimplistic/types"
+	"github.com/strick-j/scimplistic/utils"
 )
 
 // Generate Struct for the forms required by GroupFunctions

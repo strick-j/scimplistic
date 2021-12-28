@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	config "github.com/strick-j/go-form-webserver/config"
-	types "github.com/strick-j/go-form-webserver/types"
+	config "github.com/strick-j/scimplistic/config"
+	types "github.com/strick-j/scimplistic/types"
 )
 
 func SettingsForm(w http.ResponseWriter, r *http.Request) {
