@@ -78,12 +78,14 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO - Check if settings configured, if not redirect
+
 	// Retrieve byte based object via BuildUrl function
 	log.Println("INFO UserAllReq: Attempting to obtain User Data from SCIM API.")
 	res, err := BuildUrl("Users", "GET")
 	if err != nil {
 		log.Println("ERROR UserAllReq:", err)
-		return
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
 		log.Println("INFO User AllReq: User Information Recieved")
 	}

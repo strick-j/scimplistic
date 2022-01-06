@@ -119,8 +119,6 @@ func ScimAPI(target string, apimethod string, data types.PostObjectRequest, user
 		fmt.Println(err)
 	}
 
-	fmt.Println(res.Body)
-
 	return body, res.StatusCode, err
 }
 

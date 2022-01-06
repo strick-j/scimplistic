@@ -202,11 +202,12 @@ type Safes struct {
 // Legend: "Form Title"
 // Role:   "adduser,addgroup,addsafe,etc..."
 type CreateForm struct {
-	FormAction string       `json:"formAction"`
-	FormMethod string       `json:"formMethod"`
-	FormLegend string       `json:"formLegend"`
-	FormRole   string       `json:"formRole,omitempty"`
-	FormFields []FormFields `json:"formFields"`
+	FormEncType string       `json:"forEncyType"`
+	FormAction  string       `json:"formAction"`
+	FormMethod  string       `json:"formMethod"`
+	FormLegend  string       `json:"formLegend"`
+	FormRole    string       `json:"formRole,omitempty"`
+	FormFields  []FormFields `json:"formFields"`
 }
 
 // FormFields builds out the individual fields within a form
@@ -231,6 +232,7 @@ type Context struct {
 	Navigation         string     `json:"navigation,omitempty"`
 	Message            string     `json:"message,omitempty"`
 	SettingsConfigured bool       `json:"settingsConfigured,omitempty"`
+	HTTPSEnabled       bool       `json:"httpsEnabled,omitempty"`
 	Token              string     `json:"authToken,omitempty"`
 	CreateForm         CreateForm `json:"createForm,omitempty"`
 	Safes              Safes      `json:"safes,omitempty"`
@@ -242,9 +244,13 @@ type Context struct {
 // ConfigSettings is the struct to hold settings information
 // used in conjunction with MarshallIndent to write configuration
 type ConfigSettings struct {
-	ScimURL   string `json:"scimURL"`
-	AuthToken string `json:"AuthToken"`
-	PrevConf  bool   `json:"prevConf"`
+	ScimURL     string `json:"scimURL,omitempty"`
+	AuthToken   string `json:"authToken,omitempty"`
+	PrevConf    bool   `json:"prevConf,omitempty"`
+	ServerURL   string `json:"serverUrl,omitempty"`
+	EnableHTTPS bool   `json:"enableHTTPS,omitempty"`
+	CertName    string `json:"certName,omitempty"`
+	KeyName     string `json:"keyName,omitempty"`
 }
 
 // PostUser is the struct created for adding users
