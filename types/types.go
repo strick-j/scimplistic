@@ -1,6 +1,10 @@
 package types
 
-import "time"
+import (
+	"time"
+
+	"github.com/gorilla/mux"
+)
 
 // ServiceProviderResponse handles the response when the SCIM ServiceProvider is queried
 type ServiceProviderResponse struct {
@@ -244,13 +248,22 @@ type Context struct {
 // ConfigSettings is the struct to hold settings information
 // used in conjunction with MarshallIndent to write configuration
 type ConfigSettings struct {
-	ScimURL     string `json:"scimURL,omitempty"`
-	AuthToken   string `json:"authToken,omitempty"`
-	PrevConf    bool   `json:"prevConf,omitempty"`
-	ServerURL   string `json:"serverUrl,omitempty"`
-	EnableHTTPS bool   `json:"enableHTTPS,omitempty"`
-	CertName    string `json:"certName,omitempty"`
-	KeyName     string `json:"keyName,omitempty"`
+	ScimURL        string      `json:"scimURL,omitempty"`
+	AuthToken      string      `json:"authToken,omitempty"`
+	PrevConf       bool        `json:"prevConf,omitempty"`
+	ServerURL      string      `json:"serverUrl,omitempty"`
+	EnableHTTPS    bool        `json:"enableHTTPS,omitempty"`
+	ServerName     string      `json:"serverName"`            // The server's name. (Required)
+	MaxConnections int         `json:"maxConnections"`        // The maximum amount of concurrent connections the server will accept. Setting this to 0 means infinite.
+	HostName       string      `json:"hostName"`              // Server's host name. Use 'https://' for TLS connections. (ex: 'https://example.com') (Required)
+	HostAlias      string      `json:"hostAlias"`             // Server's host alias name. Use 'https://' for TLS connections. (ex: 'https://www.example.com')
+	IP             string      `json:"ip"`                    // Server's IP address. (Required)
+	Port           int         `json:"port"`                  // Server's port. (Required)
+	TLS            bool        `json:"tls"`                   // Enables TLS/SSL connections.
+	CertFile       string      `json:"certfile,omitempty"`    // SSL/TLS certificate file location (starting from system's root folder). (Required for TLS)
+	PrivKeyFile    string      `json:"privKeyFile,omitempty"` // SSL/TLS private key file location (starting from system's root folder). (Required for TLS)
+	OriginOnly     bool        `json:"originOnly,omitempty"`  // When enabled, the server declines connections made from outside the origin server (Admin logins always check origin). IMPORTANT: Enable this for web apps and LAN servers.
+	Router         *mux.Router `json:"router,omitempty"`
 }
 
 // PostUser is the struct created for adding users
@@ -357,4 +370,17 @@ type PostSafeResponse struct {
 	UrnIetfParamsScimSchemasCyberark11Safe struct {
 		NumberOfDaysRetention int `json:"NumberOfDaysRetention"`
 	} `json:"urn:ietf:params:scim:schemas:cyberark:1.1:Safe"`
+}
+
+type ServerSettings struct {
+	ServerName     string `json:"serverName"`            // The server's name. (Required)
+	MaxConnections int    `json:"maxConnections"`        // The maximum amount of concurrent connections the server will accept. Setting this to 0 means infinite.
+	HostName       string `json:"hastName"`              // Server's host name. Use 'https://' for TLS connections. (ex: 'https://example.com') (Required)
+	HostAlias      string `json:"hostAlias"`             // Server's host alias name. Use 'https://' for TLS connections. (ex: 'https://www.example.com')
+	IP             string `json:"ip"`                    // Server's IP address. (Required)
+	Port           int    `json:"port"`                  // Server's port. (Required)
+	TLS            bool   `json:"tls,omitempty"`         // Enables TLS/SSL connections.
+	CertFile       string `json:"certfile,omitempty"`    // SSL/TLS certificate file location (starting from system's root folder). (Required for TLS)
+	PrivKeyFile    string `json:"privKeyFile,omitempty"` // SSL/TLS private key file location (starting from system's root folder). (Required for TLS)
+	OriginOnly     bool   `json:"originOnly,omitempty"`  // When enabled, the server declines connections made from outside the origin server (Admin logins always check origin). IMPORTANT: Enable this for web apps and LAN servers.
 }

@@ -14,7 +14,7 @@ import (
 )
 
 func BuildUrl(target string, apimethod string) ([]byte, error) {
-	values, err := config.ReadConfig("config.json")
+	values, err := config.ReadConfig("settings.json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -60,7 +60,7 @@ func BuildUrl(target string, apimethod string) ([]byte, error) {
 }
 
 func ScimAPI(target string, apimethod string, data types.PostObjectRequest, userdata types.PostUserRequest) ([]byte, int, error) {
-	values, err := config.ReadConfig("config.json")
+	values, err := config.ReadConfig("settings.json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -127,7 +127,7 @@ func ScimAPI(target string, apimethod string, data types.PostObjectRequest, user
 // Safes returns a "1" upon successful deletion.
 func ScimApiDel(data types.DelObjectRequest) (int, error) {
 	// Read in Target and Token from Configuration
-	values, err := config.ReadConfig("config.json")
+	values, err := config.ReadConfig("settings.json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -168,7 +168,7 @@ func ScimApiDel(data types.DelObjectRequest) (int, error) {
 }
 
 func ScimApiReq(data types.DelObjectRequest) ([]byte, error) {
-	values, err := config.ReadConfig("config.json")
+	values, err := config.ReadConfig("settings.json")
 	if err != nil {
 		fmt.Println(err)
 	}

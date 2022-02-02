@@ -2,86 +2,70 @@ package main
 
 import (
 	"log"
-	"net"
 	"net/http"
-	"sync"
 
-	"github.com/strick-j/scimplistic/config"
-	"github.com/strick-j/scimplistic/views"
+	"github.com/gorilla/mux"
+
+	config "github.com/strick-j/scimplistic/config"
+	types "github.com/strick-j/scimplistic/types"
+	utils "github.com/strick-j/scimplistic/utils"
+	views "github.com/strick-j/scimplistic/views"
 )
-
-var httpAddr string = ":8080"
-var httpsAddr string = ":8443"
 
 func main() {
 
+	r := mux.NewRouter()
+
 	// Serve files for use, omit static from URL
-	http.Handle("/static/", http.FileServer(http.Dir("public")))
+	r.Handle("/static/", http.FileServer(http.Dir("public")))
 
 	// Handler for initial Index
-	http.HandleFunc("/", views.IndexReq)
+	r.HandleFunc("/", views.IndexReq)
 
 	// Handler for Settings functions
-	http.HandleFunc("/settings/", views.SettingsForm)
-	http.HandleFunc("/configuresettings/", views.ConfigureSettings)
+	r.HandleFunc("/settings/", views.SettingsForm)
+	r.HandleFunc("/configuresettings/", views.ConfigureSettings)
 
 	// Handlers for user functions
-	http.HandleFunc("/allusers/", views.UserAllReq)
-	http.HandleFunc("/useraddform/", views.UserAddForm)
-	http.HandleFunc("/useraddreq/", views.UserAddReq)
-	http.HandleFunc("/userdel/", views.UserDelFunc)
+	r.HandleFunc("/allusers/", views.UserAllReq)
+	r.HandleFunc("/useraddform/", views.UserAddForm)
+	r.HandleFunc("/useraddreq/", views.UserAddReq)
+	r.HandleFunc("/userdel/", views.UserDelFunc)
 
 	// Handlers for group functions
-	http.HandleFunc("/allgroups/", views.GroupAllReq)
-	http.HandleFunc("/groupaddform/", views.GroupAddForm)
-	http.HandleFunc("/groupaddreq/", views.GroupAddReq)
-	http.HandleFunc("/groupdel/", views.GroupDelFunc)
-	http.HandleFunc("/groupupdate/", views.GroupUpdateForm)
-	http.HandleFunc("/groupupdatereq/", views.GroupUpdateFunc)
+	r.HandleFunc("/allgroups/", views.GroupAllReq)
+	r.HandleFunc("/groupaddform/", views.GroupAddForm)
+	r.HandleFunc("/groupaddreq/", views.GroupAddReq)
+	r.HandleFunc("/groupdel/", views.GroupDelFunc)
+	r.HandleFunc("/groupupdate/", views.GroupUpdateForm)
+	r.HandleFunc("/groupupdatereq/", views.GroupUpdateFunc)
 
 	// Handlers for safe functions
-	http.HandleFunc("/allsafes/", views.SafeAllReq)
-	http.HandleFunc("/safeaddform/", views.SafeAddForm)
-	http.HandleFunc("/safeaddreq/", views.SafeAddReq)
-	http.HandleFunc("/safedel/", views.SafeDelFunc)
+	r.HandleFunc("/allsafes/", views.SafeAllReq)
+	r.HandleFunc("/safeaddform/", views.SafeAddForm)
+	r.HandleFunc("/safeaddreq/", views.SafeAddReq)
+	r.HandleFunc("/safedel/", views.SafeDelFunc)
 
-	// Read in config values
-	values, err := config.ReadConfig("config.json")
+	values, err := config.ReadConfig("settings.json")
 	if err != nil {
-		log.Println("ERROR IndexReq:", err)
-	} else if values.EnableHTTPS {
-		log.Printf("INFO Main: HTTPS enabled, checking cert and key files necessary to serve HTTPS")
-		if values.CertName != "" {
-			log.Println("INFO Main: Certificate Name Identified:", values.CertName)
-		} else {
-			log.Println("ERROR Main: Certificate Name not Found. Serving standard HTTP")
-			return
-		}
-
-		if values.KeyName != "" {
-			log.Println("INFO Main: Key Name Identified:", values.KeyName)
-		} else {
-			log.Println("ERROR Main: Key Name not Found. Serving standard HTTP")
-			return
-		}
-
-		srv := http.Server{
-			Addr: httpsAddr,
-		}
-
-		_, tlsPort, err := net.SplitHostPort(httpsAddr)
-		if err != nil {
-			return
-		}
-		go utils.redirectToHTTPS(tlsPort)
-
-		srv.ListenAndServeTLS(values.CertName, values.KeyName)
-
-	} else {
-		log.Printf("INFO Main: HTTPS not configured, serving standard HTTP")
-		httpServerExitDone := &sync.WaitGroup{}
-
-		utils.startHttpServer(httpServerExitDone)
+		log.Println("ERROR Main:", err)
 	}
+
+	siteSettings := types.ConfigSettings{
+		ServerName:     values.HostName,
+		MaxConnections: values.MaxConnections,
+		HostName:       values.HostName,
+		HostAlias:      values.HostAlias,
+		IP:             values.IP,
+		Port:           values.Port,
+		TLS:            values.TLS,
+		CertFile:       values.CertFile,
+		PrivKeyFile:    values.PrivKeyFile,
+		Router:         r,
+	}
+
+	log.Printf("INFO MAIN: Attempting to start Scimplistic server")
+
+	utils.Start(&siteSettings)
 
 }

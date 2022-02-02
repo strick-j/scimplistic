@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/strick-j/scimplistic/types"
-	"github.com/strick-j/scimplistic/utils"
 )
 
 // Generate Struct for the forms required by GroupFunctions
@@ -121,7 +120,7 @@ func UserAddForm(w http.ResponseWriter, r *http.Request) {
 func UserDelFunc(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
@@ -168,7 +167,7 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	log.Println("INFO UserAddReq: Reading data from UserAddReq Form")
 	uname := r.FormValue("FormUserName")

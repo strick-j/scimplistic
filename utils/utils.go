@@ -1,77 +1,179 @@
 package utils
 
 import (
-	"io"
+	"context"
 	"log"
-	"net"
 	"net/http"
-	"strings"
-	"sync"
+	"strconv"
+	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/strick-j/scimplistic/types"
 )
 
-var httpAddr string = ":8080"
-var httpsAddr string = ":8443"
+var (
+	httpServer *http.Server
 
-func GetRedirectUrl(referer string) string {
-	var redirectUrl string
-	url := strings.Split(referer, "/")
+	settings *types.ConfigSettings
 
-	if len(url) > 4 {
-		redirectUrl = "/" + strings.Join(url[3:], "/")
-	} else {
-		redirectUrl = "/"
-	}
-	return redirectUrl
-}
+	serverStarted  bool       = false
+	serverPaused   bool       = false
+	serverStopping bool       = false
+	serverEndChan  chan error = make(chan error)
 
-func startTlsListen(certPath string, keyPath string) {
-	log.Printf("INFO startTlsListen: Attempting to start TLS Server.")
-	srv := http.Server{
-		Addr: httpsAddr,
-	}
+	startCallback  func()
+	pauseCallback  func()
+	stopCallback   func()
+	resumeCallback func()
 
-	_, tlsPort, err := net.SplitHostPort(httpsAddr)
-	if err != nil {
+	//SERVER VERSION NUMBER
+	version string = "1.0-BETA.0"
+)
+
+func Start(s *types.ConfigSettings) {
+	log.Printf("INFO Start: Checking Server Status")
+	if serverStarted || serverPaused {
+		log.Printf("INFO Start: Server running or paused")
 		return
 	}
-	go redirectToHTTPS(tlsPort)
-
-	srv.ListenAndServeTLS(certPath, keyPath)
-}
-
-func redirectToHTTPS(tlsPort string) {
-	log.Print("INFO RedirectToHTTPS: Attempting to create redirect")
-	httpSrv := http.Server{
-		Addr: httpAddr,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			host, _, _ := net.SplitHostPort(r.Host)
-			u := r.URL
-			u.Host = net.JoinHostPort(host, tlsPort)
-			u.Scheme = "https"
-			log.Println(u.String())
-			http.Redirect(w, r, u.String(), http.StatusMovedPermanently)
-		}),
+	serverStarted = true
+	log.Println("INFO Start: Starting server...")
+	// Set server settings
+	if s != nil {
+		settings = s
+	} else {
+		// Default localhost settings
+		log.Println("INFO Start: Using default settings...")
+		settings = &types.ConfigSettings{
+			ServerName:     "!server!",
+			MaxConnections: 0,
+			HostName:       "localhost",
+			HostAlias:      "localhost",
+			IP:             "localhost",
+			Port:           8080,
+			TLS:            false,
+			CertFile:       "",
+			PrivKeyFile:    "",
+			OriginOnly:     false}
 	}
-	log.Println("INFO RedirectToHTTPS: Listening on:", httpSrv.ListenAndServe())
+
+	// Start socket listener
+	httpServer = makeServer("/", settings.TLS, s.Router)
+
+	// Run callback
+	if startCallback != nil {
+		startCallback()
+	}
+
+	// Start macro listener
+	go macroListener()
+
+	log.Println("INFO Start: Startup complete")
+
+	// Wait for server shutdown
+	doneErr := <-serverEndChan
+
+	if doneErr != http.ErrServerClosed {
+		log.Println("ERROR Start: Fatal server error:", doneErr.Error())
+
+	}
+
+	log.Println("INFO Start: Server shut-down completed")
+
+	serverStarted = false
+
+	if stopCallback != nil {
+		log.Println("executing stop callback")
+		stopCallback()
+	}
+
 }
 
-func startHttpServer(wg *sync.WaitGroup) *http.Server {
-	srv := &http.Server{Addr: ":8080"}
+func makeServer(handleDir string, tls bool, router *mux.Router) *http.Server {
+	server := &http.Server{
+		Addr:         settings.IP + ":" + strconv.Itoa(settings.Port),
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      router,
+	}
+	if tls {
+		go func() {
+			log.Println("INFO makeServer: Attempting to start HTTPS server on IP:" + settings.IP + " and Port:" + strconv.Itoa(settings.Port))
+			err := server.ListenAndServeTLS(settings.CertFile, settings.PrivKeyFile)
+			serverEndChan <- err
+		}()
+	} else {
+		go func() {
+			log.Println("INFO makeServer: Attempting to start server on IP:" + settings.IP + " and Port:" + strconv.Itoa(settings.Port))
+			err := server.ListenAndServe()
+			serverEndChan <- err
+		}()
+	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "hello world\n")
-	})
+	//
+	return server
+}
 
-	go func() {
-		defer wg.Done() // let main know we are done cleaning up
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//   Server actions   ////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		// always returns error. ErrServerClosed on graceful close
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			// unexpected error. port in use?
-			log.Fatalf("ListenAndServe(): %v", err)
+// Pause will temporarily pause the server
+func Pause() {
+	if !serverPaused {
+		serverPaused = true
+
+		SetPauseCallback(serverPaused)
+
+		// Run callback
+		if pauseCallback != nil {
+			log.Println("running some callback", &pauseCallback)
+			pauseCallback()
 		}
-	}()
 
-	// returning reference so caller can call Shutdown()
-	return srv
+		log.Println("Server paused")
+
+		serverStarted = false
+	}
+
+}
+
+// Resume will resume after pause
+func Resume() {
+	if serverPaused {
+		serverStarted = true
+
+		// Run callback
+		if resumeCallback != nil {
+			resumeCallback()
+		}
+
+		log.Println("Server resumed")
+
+		serverPaused = false
+	}
+}
+
+// ShutDown will shut the server down
+func ShutDown() error {
+	if !serverStopping {
+		serverStopping = true
+
+		// Shut server down
+		log.Println("INFO Shutdown: Shutting server down...")
+		shutdownErr := httpServer.Shutdown(context.Background())
+		if shutdownErr != http.ErrServerClosed {
+			return shutdownErr
+		}
+	}
+	return nil
+}
+
+func ServerPaused() {
+	log.Println("Establishing server Paused.")
+}
+
+func ServerStopped(action string) {
+	log.Println("Establishing server Stopped.")
 }

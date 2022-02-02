@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	types "github.com/strick-j/scimplistic/types"
-	"github.com/strick-j/scimplistic/utils"
+	"github.com/strick-j/scimplistic/types"
 )
 
 // Generate Struct for the forms required by GroupFunctions
@@ -83,7 +82,7 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	log.Println("GroupAddReq: Reading Data from Group Add Form")
 	displayName := r.FormValue("FormGroupDisplayName")
@@ -122,7 +121,7 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
@@ -164,7 +163,7 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 func GroupUpdateForm(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, redirectURL, http.StatusBadRequest)
