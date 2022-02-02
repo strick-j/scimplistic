@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/strick-j/scimplistic/types"
 )
 
@@ -129,18 +129,14 @@ func UserDelFunc(w http.ResponseWriter, r *http.Request) {
 	log.Println("INFO UserDelFunc: Starting User Delete Process")
 
 	// Retrieve UserID from URL to send to Del Function
-	id, err := strconv.Atoi(r.URL.Path[len("/userdel/"):])
-	if err != nil {
-		log.Println("ERROR UserDelFunc:", err)
-		return
-	} else {
-		log.Println("INFO UserDelFunc: User ID to Delete:", id)
-	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Println("INFO UserDelFunc: User ID to Delete:", id)
 
 	// Create Struct for passing data to SCIM API Delete Function
 	delObjectData := types.DelObjectRequest{
 		ResourceType: "users",
-		ID:           strconv.Itoa(id),
+		ID:           id,
 	}
 
 	// Delete User and recieve response from Delete Function

@@ -31,13 +31,13 @@ func main() {
 	r.HandleFunc("/allusers/", views.UserAllReq)
 	r.HandleFunc("/useraddform/", views.UserAddForm)
 	r.HandleFunc("/useraddreq/", views.UserAddReq)
-	r.HandleFunc("/userdel/", views.UserDelFunc)
+	r.HandleFunc("/userdel/{id}", views.UserDelFunc)
 
 	// Handlers for group functions
 	r.HandleFunc("/allgroups/", views.GroupAllReq)
 	r.HandleFunc("/groupaddform/", views.GroupAddForm)
 	r.HandleFunc("/groupaddreq/", views.GroupAddReq)
-	r.HandleFunc("/groupdel/", views.GroupDelFunc)
+	r.HandleFunc("/groupdel/{id}", views.GroupDelFunc)
 	r.HandleFunc("/groupupdate/", views.GroupUpdateForm)
 	r.HandleFunc("/groupupdatereq/", views.GroupUpdateFunc)
 
@@ -45,7 +45,7 @@ func main() {
 	r.HandleFunc("/allsafes/", views.SafeAllReq)
 	r.HandleFunc("/safeaddform/", views.SafeAddForm)
 	r.HandleFunc("/safeaddreq/", views.SafeAddReq)
-	r.HandleFunc("/safedel/", views.SafeDelFunc)
+	r.HandleFunc("/safedel/{id}", views.SafeDelFunc)
 
 	values, err := config.ReadConfig("settings.json")
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/strick-j/scimplistic/types"
 )
 
@@ -112,14 +113,9 @@ func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
 	log.Println("INFO SafeDelFunc: Starting Safe Delete Process")
 
 	// Retrieve USerID from URL to send to Del Function
-	safeName := r.URL.Path[len("/safedel/"):]
-
-	if safeName == "" {
-		log.Println("ERROR SafeDelFunc: Could not determine Safe Name for Deletion.")
-		return
-	} else {
-		log.Println("INFO SafeDelFunc: Safe Name to Delete:", safeName)
-	}
+	vars := mux.Vars(r)
+	safeName := vars["id"]
+	log.Println("INFO SafeDelFunc: Safe ID to Delete:", safeName)
 
 	// Create Struct for passing data to SCIM API Delete Function
 	delObjectData := types.DelObjectRequest{

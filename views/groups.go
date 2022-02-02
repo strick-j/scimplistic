@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
+
+	"github.com/gorilla/mux"
 
 	"github.com/strick-j/scimplistic/types"
 )
@@ -129,19 +130,14 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("INFO GroupDelFunc: Starting Group Delete Process")
 
-	// Retrieve Group ID from URL to send to Del Function
-	id, err := strconv.Atoi(r.URL.Path[len("/groupdel/"):])
-	if err != nil {
-		log.Println("ERROR GroupDelFunc:", err)
-		http.Redirect(w, r, redirectURL, http.StatusFound)
-	} else {
-		log.Println("INFO GroupDelFunc: Group ID to Delete:", id)
-	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Println("INFO GroupDelFunc: Group ID to Delete:", id)
 
 	// Create Struct for passing data to SCIM API Delete Function
 	delObjectData := types.DelObjectRequest{
 		ResourceType: "groups",
-		ID:           strconv.Itoa(id),
+		ID:           id,
 	}
 
 	// Delete Group and recieve response from Delete Function
