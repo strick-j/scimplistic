@@ -4,13 +4,14 @@
 
 <!-- Place Add Button for Page - Triggers script.js -->
 <div class="position-relative">
-  <button class="btn-primary btn floating-action-icon floating-action-icon-add">
+  <button class="btn-primary btn floating-action-icon floating-action-icon-add" data-bs-objecttype="{{.Navigation}}" data-bs-toggle="modal"
+  data-bs-target="#addObjectModal">>
     <span class="position-absolute fs-1 bi bi-plus top-50 start-50 translate-middle"></span>
   </button>
 </div>
 
 <!-- Modal triggered by Add Button / script.js-->
-<div class="modal" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="new{{.Navigation}}Label"
+<div class="modal" id="addObjectModal" tabindex="-1" role="dialog" aria-labelledby="new{{.Navigation}}Label"
   aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -66,7 +67,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="delete{{.Navigation}}Label">Delete {{ if eq .Navigation "Groups"}}Group{{else if eq
-          .Navigation "Users"}}User{{end}}</h5>
+          .Navigation "Users"}}User{{else if eq .Navigation "Safes"}}Safes{{end}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -170,22 +171,18 @@
                     <span class="visually-hidden">Delete</span>
                   </div>
                 </div>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill" data-bs-id="{{.ID}}"
-                      data-bs-objecttype="safe" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
-                      data-bs-target="#updateObjectModal">>
-                      <span class="visually-hidden">Edit</span>
-                    </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill" data-bs-id="{{.ID}}"
+                    data-bs-objecttype="safe" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                    data-bs-target="#updateObjectModal">
+                    <span class="visually-hidden">Edit</span>
                   </div>
-                </a>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-search">
-                      <span class="visually-hidden">Edit</span>
-                    </div>
+                </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search">
+                    <span class="visually-hidden">Edit</span>
                   </div>
-                </a>
+                </div>
               </div>
             </div>
           </div>
@@ -254,22 +251,18 @@
                     <span class="visually-hidden">Delete</span>
                   </div>
                 </div>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill"data-bs-id="{{.ID}}"
-                    data-bs-objecttype="user" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
-                    data-bs-target="#updateObjectModal">
-                      <span class="visually-hidden">Edit</span>
-                    </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill"data-bs-id="{{.ID}}"
+                  data-bs-objecttype="user" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                  data-bs-target="#updateObjectModal">
+                    <span class="visually-hidden">Edit</span>
                   </div>
-                </a>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-search">
-                      <span class="visually-hidden">Edit</span>
-                    </div>
+                </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search">
+                    <span class="visually-hidden">Edit</span>
                   </div>
-                </a>
+                </div>
               </div>
             </div>
           </div>
@@ -331,13 +324,11 @@
                     <span class="visually-hidden">Edit</span>
                   </div>
                 </div>
-                <a href="#">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-search">
-                      <span class="visually-hidden">Edit</span>
-                    </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search">
+                    <span class="visually-hidden">Edit</span>
                   </div>
-                </a>
+                </div>
               </div>
             </div>
           </div>
