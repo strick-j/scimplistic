@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/strick-j/scimplistic/types"
-	"github.com/strick-j/scimplistic/utils"
 )
 
 // Generate Struct for the forms required by Safe Functions
@@ -104,7 +104,7 @@ func SafeAddForm(w http.ResponseWriter, r *http.Request) {
 func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
@@ -113,14 +113,9 @@ func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
 	log.Println("INFO SafeDelFunc: Starting Safe Delete Process")
 
 	// Retrieve USerID from URL to send to Del Function
-	safeName := r.URL.Path[len("/safedel/"):]
-
-	if safeName == "" {
-		log.Println("ERROR SafeDelFunc: Could not determine Safe Name for Deletion.")
-		return
-	} else {
-		log.Println("INFO SafeDelFunc: Safe Name to Delete:", safeName)
-	}
+	vars := mux.Vars(r)
+	safeName := vars["id"]
+	log.Println("INFO SafeDelFunc: Safe ID to Delete:", safeName)
 
 	// Create Struct for passing data to SCIM API Delete Function
 	delObjectData := types.DelObjectRequest{
@@ -152,7 +147,7 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	log.Println("INFO SafeAddReq: Reading Data from Safe Add Form")
 	safeName := r.FormValue("FormSafeName")

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
-	types "github.com/strick-j/scimplistic/types"
-	"github.com/strick-j/scimplistic/utils"
+	"github.com/gorilla/mux"
+
+	"github.com/strick-j/scimplistic/types"
 )
 
 // Generate Struct for the forms required by GroupFunctions
@@ -83,7 +83,7 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	log.Println("GroupAddReq: Reading Data from Group Add Form")
 	displayName := r.FormValue("FormGroupDisplayName")
@@ -122,7 +122,7 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
@@ -130,19 +130,14 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("INFO GroupDelFunc: Starting Group Delete Process")
 
-	// Retrieve Group ID from URL to send to Del Function
-	id, err := strconv.Atoi(r.URL.Path[len("/groupdel/"):])
-	if err != nil {
-		log.Println("ERROR GroupDelFunc:", err)
-		http.Redirect(w, r, redirectURL, http.StatusFound)
-	} else {
-		log.Println("INFO GroupDelFunc: Group ID to Delete:", id)
-	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Println("INFO GroupDelFunc: Group ID to Delete:", id)
 
 	// Create Struct for passing data to SCIM API Delete Function
 	delObjectData := types.DelObjectRequest{
 		ResourceType: "groups",
-		ID:           strconv.Itoa(id),
+		ID:           id,
 	}
 
 	// Delete Group and recieve response from Delete Function
@@ -164,7 +159,7 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 func GroupUpdateForm(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, redirectURL, http.StatusBadRequest)

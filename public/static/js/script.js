@@ -37,7 +37,7 @@ $(document).ready(function(){
         $("#delObjectForm").attr("action","/safedel/" + objectId);
       } else {}
 
-  })
+    })
     
     $("#noti").click(
         function(){

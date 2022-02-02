@@ -1,42 +1,72 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
-	"github.com/strick-j/scimplistic/views"
+	"github.com/gorilla/mux"
+
+	config "github.com/strick-j/scimplistic/config"
+	types "github.com/strick-j/scimplistic/types"
+	utils "github.com/strick-j/scimplistic/utils"
+	views "github.com/strick-j/scimplistic/views"
 )
 
 func main() {
 
+	r := mux.NewRouter()
+
 	// Serve files for use, omit static from URL
-	http.Handle("/static/", http.FileServer(http.Dir("public")))
+	//r.Handle("/static/{rest}", http.StripPrefix("/static/", http.FileServer(http.Dir("public/static/"))))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./public/static/"))))
 
 	// Handler for initial Index
-	http.HandleFunc("/", views.IndexReq)
+	r.HandleFunc("/", views.IndexReq)
 
 	// Handler for Settings functions
-	http.HandleFunc("/settings/", views.SettingsForm)
-	http.HandleFunc("/configuresettings/", views.ConfigureSettings)
+	r.HandleFunc("/settings/", views.SettingsForm)
+	r.HandleFunc("/configuresettings/", views.ConfigureSettings)
 
 	// Handlers for user functions
-	http.HandleFunc("/allusers/", views.UserAllReq)
-	http.HandleFunc("/useraddform/", views.UserAddForm)
-	http.HandleFunc("/useraddreq/", views.UserAddReq)
-	http.HandleFunc("/userdel/", views.UserDelFunc)
+	r.HandleFunc("/allusers/", views.UserAllReq)
+	r.HandleFunc("/useraddform/", views.UserAddForm)
+	r.HandleFunc("/useraddreq/", views.UserAddReq)
+	r.HandleFunc("/userdel/{id}", views.UserDelFunc)
 
 	// Handlers for group functions
-	http.HandleFunc("/allgroups/", views.GroupAllReq)
-	http.HandleFunc("/groupaddform/", views.GroupAddForm)
-	http.HandleFunc("/groupaddreq/", views.GroupAddReq)
-	http.HandleFunc("/groupdel/", views.GroupDelFunc)
-	http.HandleFunc("/groupupdate/", views.GroupUpdateForm)
-	http.HandleFunc("/groupupdatereq/", views.GroupUpdateFunc)
+	r.HandleFunc("/allgroups/", views.GroupAllReq)
+	r.HandleFunc("/groupaddform/", views.GroupAddForm)
+	r.HandleFunc("/groupaddreq/", views.GroupAddReq)
+	r.HandleFunc("/groupdel/{id}", views.GroupDelFunc)
+	r.HandleFunc("/groupupdate/", views.GroupUpdateForm)
+	r.HandleFunc("/groupupdatereq/", views.GroupUpdateFunc)
 
 	// Handlers for safe functions
-	http.HandleFunc("/allsafes/", views.SafeAllReq)
-	http.HandleFunc("/safeaddform/", views.SafeAddForm)
-	http.HandleFunc("/safeaddreq/", views.SafeAddReq)
-	http.HandleFunc("/safedel/", views.SafeDelFunc)
+	r.HandleFunc("/allsafes/", views.SafeAllReq)
+	r.HandleFunc("/safeaddform/", views.SafeAddForm)
+	r.HandleFunc("/safeaddreq/", views.SafeAddReq)
+	r.HandleFunc("/safedel/{id}", views.SafeDelFunc)
 
-	http.ListenAndServe(":8080", nil)
+	values, err := config.ReadConfig("settings.json")
+	if err != nil {
+		log.Println("ERROR Main:", err)
+	}
+
+	siteSettings := types.ConfigSettings{
+		ServerName:     values.HostName,
+		MaxConnections: values.MaxConnections,
+		HostName:       values.HostName,
+		HostAlias:      values.HostAlias,
+		IP:             values.IP,
+		Port:           values.Port,
+		TLS:            values.TLS,
+		CertFile:       values.CertFile,
+		PrivKeyFile:    values.PrivKeyFile,
+		Router:         r,
+	}
+
+	log.Printf("INFO MAIN: Attempting to start Scimplistic server")
+
+	utils.Start(&siteSettings)
+
 }

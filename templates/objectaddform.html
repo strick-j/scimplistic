@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col">
       {{ if .CreateForm}} {{ $value := .CreateForm}} {{ $formrole := .CreateForm.FormRole}}
-      <form action="{{ $value.FormAction}}" method="{{$value.FormMethod}}" class="needs-validation" novalidate>
+      <form action="{{ $value.FormAction}}" method="{{$value.FormMethod}}" {{ if $value.FormEncType}} enctype="{{$value.FormEncType}}"{{end}} class="needs-validation" novalidate>
         <Legend>{{ $value.FormLegend}}</Legend>
         {{ if eq .Navigation "Settings"}}
         {{ if .SettingsConfigured}}
@@ -16,6 +16,22 @@
           Settings have not been configured. Please configure using the form below.
         </div>
         {{end}}
+        <div class="mb-3 form-check form-switch">
+          <input class="form-check-input form-control" type="checkbox" value="1" id="EnableHTTPS" name="FormEnableHTTPS" {{ if .HTTPSEnabled}}checked{{end}}>
+          <label class="form-check-label" for="EnableHTTPS">
+            Enable HTTPS via TLS (Certificate and Private Key Required)
+          </label>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="ServerIP" class="form-label">Scimplistic Server IP</label>
+            <input type="text" class="form-control" placeholder="127.0.0.1" aria-label="ServerIP" name="FormServerIP" id="ServerIP">
+          </div>
+          <div class="col">
+            <label for="ServerIP" class="form-label">Scimplistic Server Port</label>
+            <input type="text" class="form-control" placeholder="8080" aria-label="ServerPort" name="FormServerPort" id="ServerPort">
+          </div>
+        </div>
         {{end}}
         {{range $value.FormFields}}
         <div class="mb-3">

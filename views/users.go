@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/strick-j/scimplistic/types"
-	"github.com/strick-j/scimplistic/utils"
 )
 
 // Generate Struct for the forms required by GroupFunctions
@@ -78,12 +77,14 @@ func UserAllReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO - Check if settings configured, if not redirect
+
 	// Retrieve byte based object via BuildUrl function
 	log.Println("INFO UserAllReq: Attempting to obtain User Data from SCIM API.")
 	res, err := BuildUrl("Users", "GET")
 	if err != nil {
 		log.Println("ERROR UserAllReq:", err)
-		return
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
 		log.Println("INFO User AllReq: User Information Recieved")
 	}
@@ -119,7 +120,7 @@ func UserAddForm(w http.ResponseWriter, r *http.Request) {
 func UserDelFunc(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
@@ -128,18 +129,14 @@ func UserDelFunc(w http.ResponseWriter, r *http.Request) {
 	log.Println("INFO UserDelFunc: Starting User Delete Process")
 
 	// Retrieve UserID from URL to send to Del Function
-	id, err := strconv.Atoi(r.URL.Path[len("/userdel/"):])
-	if err != nil {
-		log.Println("ERROR UserDelFunc:", err)
-		return
-	} else {
-		log.Println("INFO UserDelFunc: User ID to Delete:", id)
-	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Println("INFO UserDelFunc: User ID to Delete:", id)
 
 	// Create Struct for passing data to SCIM API Delete Function
 	delObjectData := types.DelObjectRequest{
 		ResourceType: "users",
-		ID:           strconv.Itoa(id),
+		ID:           id,
 	}
 
 	// Delete User and recieve response from Delete Function
@@ -166,7 +163,7 @@ func UserAddReq(w http.ResponseWriter, r *http.Request) {
 
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := utils.GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrl(r.Referer())
 
 	log.Println("INFO UserAddReq: Reading data from UserAddReq Form")
 	uname := r.FormValue("FormUserName")
