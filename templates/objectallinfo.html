@@ -61,7 +61,7 @@
 </div>
 
 <!-- Modal triggered by delete button -->
-<div class="modal fade" id="deleteObjectModal" tabindex="-1" role="dialog" aria-labelledby="delete{{.Navigation}}Label"
+<div class="modal fade" id="deleteObjectModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="delete{{.Navigation}}Label"
   aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -90,7 +90,7 @@
           </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="submit" value="submit" class="btn btn-danger">Submit</button>
         </form>
       </div>
@@ -320,7 +320,7 @@
                 <div class="ps-2 bd-highlight">
                   <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill" data-bs-id="{{.ID}}"
                     data-bs-objecttype="group" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
-                    data-bs-target="#deleteObjectModal">
+                    data-bs-target="#updateObjectModal">
                     <span class="visually-hidden">Edit</span>
                   </div>
                 </div>
