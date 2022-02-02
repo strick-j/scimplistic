@@ -38,13 +38,13 @@ func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve byte based object via BuildUrl function
-	log.Println("INFO GroupAllReq: Attempting to obtain Group Data from SCIM API.")
+	log.Println("INFO GroupsHandler: Attempting to obtain Group Data from SCIM API.")
 	res, err := BuildUrl("Groups", "GET")
 	if err != nil {
-		log.Println("ERROR GroupAllReq:", err)
+		log.Println("ERROR GroupsHandler:", err)
 		return
 	} else {
-		log.Println("INFO GroupAllReq: Group Information Recieved")
+		log.Println("INFO GroupsHandler: Group Information Recieved")
 	}
 
 	// Declare and unmarshal byte based response
