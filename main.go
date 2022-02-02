@@ -17,7 +17,8 @@ func main() {
 	r := mux.NewRouter()
 
 	// Serve files for use, omit static from URL
-	r.Handle("/static/", http.FileServer(http.Dir("public")))
+	//r.Handle("/static/{rest}", http.StripPrefix("/static/", http.FileServer(http.Dir("public/static/"))))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./public/static/"))))
 
 	// Handler for initial Index
 	r.HandleFunc("/", views.IndexReq)
