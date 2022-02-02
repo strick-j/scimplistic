@@ -25,16 +25,40 @@ $(document).ready(function(){
 
       // Update the modal's content.
       var modalBodyWarning = deleteObjectModal.querySelector('.modal-body #delete-warning')
-
       modalBodyWarning.textContent = 'Delete ' + objectType + ' "' + displayName + '"?'
       
       //Setup form action based on Object Type and ID
       if (objectType == "group") {
-        $("#delObjectForm").attr("action","/groupdel/" + objectId);
+        $("#delObjectForm").attr("action","/groups/del/" + objectId);
       } else if (objectType == "user") {
-        $("#delObjectForm").attr("action","/userdel/" + objectId);
+        $("#delObjectForm").attr("action","/users/del/" + objectId);
       } else if (objectType == "safe") {
-        $("#delObjectForm").attr("action","/safedel/" + objectId);
+        $("#delObjectForm").attr("action","/safes/del/" + objectId);
+      } else {}
+
+    })
+
+    // Build out modal for Updating objects based on bootstrap attributes
+    var updateObjectModal = document.getElementById('updateObjectModal')
+    updateObjectModal.addEventListener('show.bs.modal', function (event) {
+      // Button that triggered the modal
+      var button = event.relatedTarget
+      // Extract info from data-bs-* attributes
+      var objectId= button.getAttribute('data-bs-id')
+      var objectType = button.getAttribute('data-bs-objecttype')
+      var displayName = button.getAttribute('data-bs-displayname')
+
+      // Update the modal's content.
+      var modalBodyWarning = updateObjectModal.querySelector('.modal-body #update-warning')
+      modalBodyWarning.textContent = 'Update ' + objectType + ' "' + displayName + '"?'
+      
+      //Setup form action based on Object Type and ID
+      if (objectType == "group") {
+        $("#delObjectForm").attr("action","/groups/update/" + objectId);
+      } else if (objectType == "user") {
+        $("#delObjectForm").attr("action","/users/update/" + objectId);
+      } else if (objectType == "safe") {
+        $("#delObjectForm").attr("action","/safes/update/" + objectId);
       } else {}
 
     })

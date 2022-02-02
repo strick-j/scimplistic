@@ -6,14 +6,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-
 	"github.com/strick-j/scimplistic/types"
 )
 
 // Generate Struct for the forms required by GroupFunctions
 // Form Data is used by several functions (add, get, update, etc...)
 var groupFormData = types.CreateForm{
-	FormAction: "/groupaddreq/",
+	FormAction: "/groups/add",
 	FormMethod: "POST",
 	FormLegend: "Add Group Form",
 	FormFields: []types.FormFields{
@@ -29,8 +28,10 @@ var groupFormData = types.CreateForm{
 	},
 }
 
-//GroupAllReq is the function for requesting user info for collecting data to add a new user
-func GroupAllReq(w http.ResponseWriter, r *http.Request) {
+//////////////////////// Group Default Handler /////////////////////////
+
+// GroupHandler is the function for displaying the basic Groups page
+func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -60,32 +61,54 @@ func GroupAllReq(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
 
-//GroupAddForm is the form for deleting a user
-func GroupAddForm(w http.ResponseWriter, r *http.Request) {
-	log.Println("INFO GroupAddForm: Initializing Add Group Form")
+//////////////////////// Group Action Handlers /////////////////////////
 
-	// Establish context for populating add group template
-	context := types.Context{
-		Navigation: "Add Group",
-		CreateForm: groupFormData,
+// GroupActionHandler will decide what is required based on the action provided.
+// add: Proceed to GroupAddHandler
+// del: Proceed to GroupDelHandler
+// update: Proceed to GroupUpdateHandler
+// review: Proceed to GroupReviewHandler
+func GroupsActionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
 	}
 
-	// Pass form data to form template to dynamically build form
-	tpl.ExecuteTemplate(w, "objectaddform.html", context)
+	// Extract action from URL using mux.Vars.
+	vars := mux.Vars(r)
+	action := vars["action"]
+
+	// Switch to appropriate handler based on action type.
+	switch action {
+	case "add":
+		log.Println("INFO GroupsActionHandler: Calling GroupAddHandler")
+		GroupAddHandler(w, r)
+	case "del":
+		log.Println("INFO GroupsActionHandler: Calling GroupDelHandler")
+		GroupDelHandler(w, r)
+	case "update":
+		log.Println("INFO GroupsActionHandler: Calling GroupUpdateHandler")
+		GroupUpdateHandler(w, r)
+	case "review":
+		log.Println("INFO GroupsActionHandler: Calling GroupReviewHandler")
+		GroupReviewHandler(w, r)
+	}
 }
 
-//GroupAddReq is used to add users from the /useraddreq URL
-func GroupAddReq(w http.ResponseWriter, r *http.Request) {
+// GroupAddHandler reads in form data from the modal that is triggered
+// when the add group button is pressed. This function calls the SCIM
+// function which submits the ADD action to the SCIM Endpoint.
+func GroupAddHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	//for best UX we want the user to be returned to the page making
-	//the delete transaction, we use the r.Referer() function to get the link
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	log.Println("GroupAddReq: Reading Data from Group Add Form")
+	log.Println("INFO GroupAddHandler: Reading Data from Group Add Form")
 	displayName := r.FormValue("FormGroupDisplayName")
 	scimschema := []string{"urn:ietf:params:scim:schemas:core:2.0:Group"}
 
@@ -94,34 +117,38 @@ func GroupAddReq(w http.ResponseWriter, r *http.Request) {
 		Schemas:     scimschema,
 	}
 
-	// Required as placeholder
+	// Required as placeholder.
 	blankstruct := types.PostUserRequest{}
 
+	// Utilize the SCIM API funciton to POST a new Group
+	// Use the group data retrieved from the Add Group Form.
 	res, code, err := ScimAPI("Groups", "POST", addGroupData, blankstruct)
 	if code != 201 {
-		log.Println("GroupAddReq:", err)
+		log.Println("ERROR GroupAddHandler:", err)
 		http.Redirect(w, r, redirectURL, http.StatusFound)
 	} else {
-		log.Println("GroupAddReq: Group Added - Response StatusCode:", code)
+		log.Println("INFO GroupAddHandler: Group Added - Response StatusCode:", code)
 	}
 
-	// Declare and unmarshal byte based response
+	// Declare and unmarshal byte based response.
 	var bodyObject types.PostGroupResponse
 	err = json.Unmarshal(res, &bodyObject)
 	if err != nil {
-		log.Println("GroupAddReq:", err)
+		log.Println("ERROR GroupAddHandler:", err)
 		http.Redirect(w, r, redirectURL, http.StatusFound)
 	} else {
-		log.Println("GroupAddReq: Group Display Name and ID:", bodyObject.DisplayName, "-", bodyObject.ID)
+		log.Println("INFO GroupAddHandler: Group Display Name and ID:", bodyObject.DisplayName, "-", bodyObject.ID)
 	}
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
-//GroupDel is the function for deleting a group
-func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
-	//for best UX we want the user to be returned to the page making
-	//the delete transaction, we use the r.Referer() function to get the link
+// GroupDelHandler reads in form data from the modal that is triggered
+// when the delete button for a particular group is pressed. This function
+// calls the SCIM function which submits the DELETE action to the SCIM Endpoint.
+func GroupDelHandler(w http.ResponseWriter, r *http.Request) {
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
@@ -134,13 +161,13 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	log.Println("INFO GroupDelFunc: Group ID to Delete:", id)
 
-	// Create Struct for passing data to SCIM API Delete Function
+	// Create Struct for passing data to SCIM API Delete Function.
 	delObjectData := types.DelObjectRequest{
 		ResourceType: "groups",
 		ID:           id,
 	}
 
-	// Delete Group and recieve response from Delete Function
+	// Delete Group and recieve response from Delete Function.
 	res, err := ScimApiDel(delObjectData)
 	if res == 204 {
 		log.Println("INFO GroupDelFunc: Group Deleted:", id)
@@ -154,11 +181,56 @@ func GroupDelFunc(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
-// GroupUpdateFunc is responsible for displaying group
-// properties for user update.
+// GroupUpdateHandler reads in form data from the modal that is triggered
+// when the Update button for a particular group is pressed. This function
+// calls the SCIM function which submits the UPDATE action to the SCIM Endpoint.
+func GroupUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Read information from Update Form
+
+	// TODO: Parse info and form PUT/POST for Group Update
+
+	// TODO: Execute PUT/POST
+
+	// TODO: Return to Groups page after success
+	tpl.ExecuteTemplate(w, "/", nil)
+}
+
+// GroupReviewHandler reads in safe id information when the Review button
+// for a particular group is pressed. This function then provides the user with
+// more information about a particular group.
+func GroupReviewHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Read information from review (safe id)
+
+	// TODO: Parse info and form PUT/POST for Group Update
+
+	// TODO: Execute PUT/POST
+
+	// TODO: Return to Groups page after success
+	tpl.ExecuteTemplate(w, "/", nil)
+}
+
+//////////////////////// Group Form Handlers /////////////////////////
+
+// GroupAddForm is the form utilized to build the Modal when the
+// Add button is pressed from the Groups page.
+func GroupAddForm(w http.ResponseWriter, r *http.Request) {
+	log.Println("INFO GroupAddForm: Initializing Add Group Form")
+
+	// Establish context for populating add group template
+	context := types.Context{
+		Navigation: "Add Group",
+		CreateForm: groupFormData,
+	}
+
+	// Pass form data to form template to dynamically build form
+	tpl.ExecuteTemplate(w, "objectaddform.html", context)
+}
+
+// GroupUpdateForm is the form utilized to build the Modal when the
+// Update/Edit button is pressed from the Groups page.
 func GroupUpdateForm(w http.ResponseWriter, r *http.Request) {
-	//for best UX we want the user to be returned to the page making
-	//the delete transaction, we use the r.Referer() function to get the link
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
 	if r.Method != "GET" {
@@ -221,17 +293,4 @@ func GroupUpdateForm(w http.ResponseWriter, r *http.Request) {
 
 	// Pass form data to form template to dynamically build form
 	tpl.ExecuteTemplate(w, "objectupdateform.html", context)
-}
-
-// GroupUpdateFunc is the function for updating a group based on information
-// returned from GroupUpdateForm
-func GroupUpdateFunc(w http.ResponseWriter, r *http.Request) {
-	// TODO: Read information from Update Form
-
-	// TODO: Parse info and form PUT/POST for Group Update
-
-	// TODO: Execute PUT/POST
-
-	// TODO: Return to Groups page after success
-	tpl.ExecuteTemplate(w, "/", nil)
 }

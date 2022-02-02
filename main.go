@@ -17,7 +17,6 @@ func main() {
 	r := mux.NewRouter()
 
 	// Serve files for use, omit static from URL
-	//r.Handle("/static/{rest}", http.StripPrefix("/static/", http.FileServer(http.Dir("public/static/"))))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./public/static/"))))
 
 	// Handler for initial Index
@@ -28,24 +27,17 @@ func main() {
 	r.HandleFunc("/configuresettings/", views.ConfigureSettings)
 
 	// Handlers for user functions
-	r.HandleFunc("/allusers/", views.UserAllReq)
-	r.HandleFunc("/useraddform/", views.UserAddForm)
-	r.HandleFunc("/useraddreq/", views.UserAddReq)
-	r.HandleFunc("/userdel/{id}", views.UserDelFunc)
+	r.HandleFunc("/users/", views.UsersHandler)
+	r.HandleFunc("/users/{action}/{id}", views.UsersActionHandler)
 
 	// Handlers for group functions
-	r.HandleFunc("/allgroups/", views.GroupAllReq)
-	r.HandleFunc("/groupaddform/", views.GroupAddForm)
-	r.HandleFunc("/groupaddreq/", views.GroupAddReq)
-	r.HandleFunc("/groupdel/{id}", views.GroupDelFunc)
-	r.HandleFunc("/groupupdate/", views.GroupUpdateForm)
-	r.HandleFunc("/groupupdatereq/", views.GroupUpdateFunc)
+	r.HandleFunc("/groups/", views.GroupsHandler)
+	r.HandleFunc("/groups/{action}", views.GroupsActionHandler)
+	r.HandleFunc("/groups/{action}/{id}", views.GroupsActionHandler)
 
 	// Handlers for safe functions
-	r.HandleFunc("/allsafes/", views.SafeAllReq)
-	r.HandleFunc("/safeaddform/", views.SafeAddForm)
-	r.HandleFunc("/safeaddreq/", views.SafeAddReq)
-	r.HandleFunc("/safedel/{id}", views.SafeDelFunc)
+	r.HandleFunc("/safes/", views.SafesHandler)
+	r.HandleFunc("/safes/{action}", views.SafesActionHandler)
 
 	values, err := config.ReadConfig("settings.json")
 	if err != nil {
@@ -68,5 +60,4 @@ func main() {
 	log.Printf("INFO MAIN: Attempting to start Scimplistic server")
 
 	utils.Start(&siteSettings)
-
 }

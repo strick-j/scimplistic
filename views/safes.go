@@ -13,7 +13,7 @@ import (
 // Generate Struct for the forms required by Safe Functions
 // Form Data is used by several functions (add, get, update, etc...)
 var safeFormData = types.CreateForm{
-	FormAction: "/safeaddreq/",
+	FormAction: "/safes/add",
 	FormMethod: "POST",
 	FormLegend: "Add Safe Form",
 	FormFields: []types.FormFields{
@@ -49,21 +49,23 @@ var safeFormData = types.CreateForm{
 	},
 }
 
-//SafeAllReq is the function for requesting user info for collecting data to add a new user
-func SafeAllReq(w http.ResponseWriter, r *http.Request) {
+///////////////////////// Safe Default Handler /////////////////////////
+
+// SafesHandler is the function for displaying the basic Safes page.
+func SafesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
 	// Retrieve byte based object via BuildUrl function
-	log.Println("INFO SafeAllReq: Attempting to obtain Safe Data from SCIM API.")
+	log.Println("INFO SafesHandler: Attempting to obtain Safe Data from SCIM API.")
 	res, err := BuildUrl("Containers", "GET")
 	if err != nil {
-		log.Println("ERROR SafeAllReq:", err)
+		log.Println("ERROR SafesHandler:", err)
 		return
 	} else {
-		log.Println("INFO SafeAllReq: Safe Information Recieved")
+		log.Println("INFO SafesHandler: Safe Information Recieved")
 	}
 
 	// Declare and unmarshal byte based response
@@ -85,61 +87,44 @@ func SafeAllReq(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
 
-// SafeAddForm is the form for collecting data to add a new Safe
-func SafeAddForm(w http.ResponseWriter, r *http.Request) {
-	log.Printf("INFO SafeAddForm: Initializing Add Safe Form")
+///////////////////////// Safe Action Handlers /////////////////////////
 
-	// Establish context for populating add safe template
-	context := types.Context{
-		Navigation: "Add Safe",
-		CreateForm: safeFormData,
-	}
-
-	// Pass form data to form template to dynamically build form
-	tpl.ExecuteTemplate(w, "objectaddform.html", context)
-}
-
-// SafeDelFunc is the function for deleting a Safe
-// Safe deletions are based off of safe Name not ID like users or groups
-func SafeDelFunc(w http.ResponseWriter, r *http.Request) {
-	//for best UX we want the user to be returned to the page making
-	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := GetRedirectUrl(r.Referer())
-
-	if r.Method != "GET" {
+// SafesAction Handler will decide what is required based on the action provided.
+// add: Proceed to SafeAddHandler
+// del: Proceed to SafeDelHandler
+// update: Proceed to SafeUpdateHandler
+// review: Proceed to SafeReviewHandler
+func SafesActionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}
-	log.Println("INFO SafeDelFunc: Starting Safe Delete Process")
 
-	// Retrieve USerID from URL to send to Del Function
+	// Extract action from URL using mux.Vars.
 	vars := mux.Vars(r)
-	safeName := vars["id"]
-	log.Println("INFO SafeDelFunc: Safe ID to Delete:", safeName)
+	action := vars["action"]
 
-	// Create Struct for passing data to SCIM API Delete Function
-	delObjectData := types.DelObjectRequest{
-		ResourceType: "containers",
-		ID:           safeName,
+	// Switch to appropriate handler based on action type.
+	switch action {
+	case "add":
+		log.Println("INFO SafesActionHandler: Calling SafeAddHandler")
+		SafeAddHandler(w, r)
+	case "del":
+		log.Println("INFO SafesActionHandler: Calling SafeDelHandler")
+		SafeDelHandler(w, r)
+	case "update":
+		log.Println("INFO SafesActionHandler: Calling SafeUpdateHandler")
+		SafeUpdateHandler(w, r)
+	case "review":
+		log.Println("INFO SafesActionHandler: Calling SafeReviewHandler")
+		SafeUpdateHandler(w, r)
 	}
-
-	// Delete Safe and recieve response from Delete Function
-	res, err := ScimApiDel(delObjectData)
-	if res == 204 {
-		log.Println("INFO SafeDelFunc: Safe Deleted:", safeName)
-		log.Println("INFO SafeDelFunc: Valid HTTP StatusCode Recieved:", res)
-		log.Println("SUCCESS SafeDelFunc: Safe Delete Process Complete.")
-	} else {
-		log.Println(err)
-		log.Println("ERROR SafeDelFunc: Invalid Http StatusCode Recieved:", res)
-		return
-	}
-
-	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
-//SafeAddReq is used to add users from the /useraddreq URL
-func SafeAddReq(w http.ResponseWriter, r *http.Request) {
+// SafeAddHandler reads in form data from the modal that is triggered
+// when the add safe button is pressed. This function calls the SCIM
+// function which submits the Delete action to the SCIM Endpoint.
+func SafeAddHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -186,4 +171,89 @@ func SafeAddReq(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
+
+// SafeDelHandler reads in form data from the modal that is triggered
+// when the delete button for a particular safe is pressed. This function
+// calls the SCIM function which submits the Delete action to the SCIM Endpoint.
+// Note: Safe deletions are based off of safe Name not ID like users or groups
+func SafeDelHandler(w http.ResponseWriter, r *http.Request) {
+	//for best UX we want the user to be returned to the page making
+	//the delete transaction, we use the r.Referer() function to get the link
+	redirectURL := GetRedirectUrl(r.Referer())
+
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
+	}
+	log.Println("INFO SafeDelFunc: Starting Safe Delete Process")
+
+	// Retrieve USerID from URL to send to Del Function
+	vars := mux.Vars(r)
+	safeName := vars["id"]
+	log.Println("INFO SafeDelFunc: Safe ID to Delete:", safeName)
+
+	// Create Struct for passing data to SCIM API Delete Function
+	delObjectData := types.DelObjectRequest{
+		ResourceType: "containers",
+		ID:           safeName,
+	}
+
+	// Delete Safe and recieve response from Delete Function
+	res, err := ScimApiDel(delObjectData)
+	if res == 204 {
+		log.Println("INFO SafeDelFunc: Safe Deleted:", safeName)
+		log.Println("INFO SafeDelFunc: Valid HTTP StatusCode Recieved:", res)
+		log.Println("SUCCESS SafeDelFunc: Safe Delete Process Complete.")
+	} else {
+		log.Println(err)
+		log.Println("ERROR SafeDelFunc: Invalid Http StatusCode Recieved:", res)
+		return
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
+
+// SafeUpdateHandler reads in form data from the modal that is triggered
+// when the Update button for a particular safe is pressed. This function
+// calls the SCIM function which submits the UPDATE action to the SCIM Endpoint.
+func SafeUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Read information from Update Form
+
+	// TODO: Parse info and form PUT/POST for Group Update
+
+	// TODO: Execute PUT/POST
+
+	// TODO: Return to Groups page after success
+	tpl.ExecuteTemplate(w, "/", nil)
+}
+
+// SafeReviewHandler reads in safe id information when the Review button
+// for a particular safe is pressed. This function then provides the user with
+// more information about a particular group.
+func SafeReviewHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Read information from Update Form
+
+	// TODO: Parse info and form PUT/POST for Group Update
+
+	// TODO: Execute PUT/POST
+
+	// TODO: Return to Groups page after success
+	tpl.ExecuteTemplate(w, "/", nil)
+}
+
+///////////////////////// Safe Form Handlers /////////////////////////
+
+// SafeAddForm is the form for collecting data to add a new Safe
+func SafeAddForm(w http.ResponseWriter, r *http.Request) {
+	log.Printf("INFO SafeAddForm: Initializing Add Safe Form")
+
+	// Establish context for populating add safe template
+	context := types.Context{
+		Navigation: "Add Safe",
+		CreateForm: safeFormData,
+	}
+
+	// Pass form data to form template to dynamically build form
+	tpl.ExecuteTemplate(w, "objectaddform.html", context)
 }

@@ -172,7 +172,9 @@
                 </div>
                 <a href="#">
                   <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill" data-bs-id="{{.ID}}"
+                      data-bs-objecttype="safe" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                      data-bs-target="#updateObjectModal">>
                       <span class="visually-hidden">Edit</span>
                     </div>
                   </div>
@@ -254,7 +256,9 @@
                 </div>
                 <a href="#">
                   <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
+                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill"data-bs-id="{{.ID}}"
+                    data-bs-objecttype="user" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                    data-bs-target="#updateObjectModal">
                       <span class="visually-hidden">Edit</span>
                     </div>
                   </div>
@@ -320,13 +324,13 @@
                     <span class="visually-hidden">Delete</span>
                   </div>
                 </div>
-                <a href="/groupupdate/{{.DisplayName}}">
-                  <div class="ps-2 bd-highlight">
-                    <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill">
-                      <span class="visually-hidden">Edit</span>
-                    </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill" data-bs-id="{{.ID}}"
+                    data-bs-objecttype="group" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                    data-bs-target="#deleteObjectModal">
+                    <span class="visually-hidden">Edit</span>
                   </div>
-                </a>
+                </div>
                 <a href="#">
                   <div class="ps-2 bd-highlight">
                     <div type="button" class="btn btn-outline-secondary bi bi-search">
