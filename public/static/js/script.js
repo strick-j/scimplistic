@@ -43,11 +43,11 @@ $(document).ready(function(){
     
     //Setup form action based on Object Type and ID
     if (objectType == "group") {
-      $("#delObjectForm").attr("action","/groups/del/" + objectId);
+      $("#delObjectForm").attr("action",'/groups/del/' + objectId);
     } else if (objectType == "user") {
-      $("#delObjectForm").attr("action","/users/del/" + objectId);
+      $("#delObjectForm").attr("action",'/users/del/' + objectId);
     } else if (objectType == "safe") {
-      $("#delObjectForm").attr("action","/safes/del/" + objectId);
+      $("#delObjectForm").attr("action",'/safes/del/' + objectId);
     } else {}
 
   })
