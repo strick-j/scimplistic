@@ -25,7 +25,7 @@ $(document).ready(function(){
       $("#addObjectForm").attr("action","/safes/add");
     } else {}
 
-  })
+  });
 
   // Build out modal for deleting objects based on bootstrap attributes
   var deleteObjectModal = document.getElementById('deleteObjectModal')
@@ -50,7 +50,7 @@ $(document).ready(function(){
       $("#delObjectForm").attr("action","/safes/del/" + objectId);
     } else {}
 
-  })
+  });
 
   // Build out modal for Updating objects based on bootstrap attributes
   var updateObjectModal = document.getElementById('updateObjectModal')
@@ -75,7 +75,7 @@ $(document).ready(function(){
       $("#delObjectForm").attr("action","/safes/update/" + objectId);
     } else {}
 
-  })
+  });
   
   $("#noti").click(
       function(){

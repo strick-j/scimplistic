@@ -9,22 +9,25 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
 	config "github.com/strick-j/scimplistic/config"
 	types "github.com/strick-j/scimplistic/types"
 	utils "github.com/strick-j/scimplistic/utils"
 )
 
-func SettingsForm(w http.ResponseWriter, r *http.Request) {
+//////////////////////// Settings Default Handler /////////////////////////
+
+func SettingsHandler(w http.ResponseWriter, r *http.Request) {
 	values, err := config.ReadConfig("settings.json")
 	if err != nil {
-		log.Println("ERROR SettingsForm:", err)
+		log.Println("ERROR SettingsHandler:", err)
 	}
 
 	settingsFormData := types.CreateForm{
 		FormEncType: "multipart/form-data",
-		FormAction:  "/configuresettings/",
+		FormAction:  "/settings/general",
 		FormMethod:  "POST",
-		FormLegend:  "Configure Settings",
+		FormLegend:  "General Settings",
 		FormRole:    "configuresettings",
 		FormFields: []types.FormFields{
 			{
@@ -65,9 +68,44 @@ func SettingsForm(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	secretFormData := types.CreateForm{
+		FormEncType: "multipart/form-data",
+		FormAction:  "/settings/secret",
+		FormMethod:  "POST",
+		FormLegend:  "Secrets Settings",
+		FormRole:    "secretsettings",
+		FormFields: []types.FormFields{
+			{
+				FieldLabel:     "oauthToken",
+				FieldLabelText: "Path to Auth Token Secret",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "FormOAUTHPath",
+				FieldIdNum:     1,
+			},
+			{
+				FieldLabel:     "postgresUsername",
+				FieldLabelText: "Username for PostreSQL server",
+				FieldInputType: "Text",
+				FieldRequired:  false,
+				FieldInputName: "psqlUname",
+				FieldIdNum:     2,
+			},
+			{
+				FieldLabel:     "postgresPassword",
+				FieldLabelText: "Path to PostgreSQL Password",
+				FieldInputType: "text",
+				FieldRequired:  false,
+				FieldInputName: "psqlPwd",
+				FieldIdNum:     3,
+			},
+		},
+	}
+
 	context := types.Context{
 		Navigation: "Settings",
 		CreateForm: settingsFormData,
+		SecretForm: secretFormData,
 		Token:      values.AuthToken,
 	}
 
@@ -77,16 +115,43 @@ func SettingsForm(w http.ResponseWriter, r *http.Request) {
 		context.SettingsConfigured = false
 	}
 
-	if values.EnableHTTPS {
+	if values.TLS {
 		context.HTTPSEnabled = true
 	} else {
 		context.HTTPSEnabled = false
 	}
 
-	tpl.ExecuteTemplate(w, "objectaddform.html", context)
+	tpl.ExecuteTemplate(w, "settings.html", context)
 }
 
-func ConfigureSettings(w http.ResponseWriter, r *http.Request) {
+///////////////////////// Settings Type Handlers /////////////////////////
+
+// SettingsTypeHandler will decide what is required based on the type assigned
+// gen: Proceed to SettingsGenHandler
+// sec: Proceed to SettingsSecretlHandler
+func SettingsTypeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
+	}
+
+	// Extract action from URL using mux.Vars.
+	vars := mux.Vars(r)
+	action := vars["action"]
+	log.Println("INFO SettingsActionHandler: Action = ", action)
+
+	// Switch to appropriate handler based on action type.
+	switch action {
+	case "general":
+		log.Println("INFO SettingsActionHandler: Calling SettingsGenHandler")
+		SettingsGenHandler(w, r)
+	case "secret":
+		log.Println("INFO UsersActionHandler: Calling SettingSecretHandler")
+		SettingsSecretHandler(w, r)
+	}
+}
+
+func SettingsGenHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -94,7 +159,6 @@ func ConfigureSettings(w http.ResponseWriter, r *http.Request) {
 
 	// initialize  Variables
 	var serverIP, ext string
-	//var serverPort, certUploaded, keyUploaded int
 	var serverPort int
 	var fileUpload [2]string
 
@@ -221,4 +285,9 @@ func ConfigureSettings(w http.ResponseWriter, r *http.Request) {
 	if sdErr := utils.ShutDown(); sdErr != nil {
 		log.Println(sdErr.Error())
 	}
+}
+
+func SettingsSecretHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Update application to pull secrets from secret store
+	tpl.ExecuteTemplate(w, "/", nil)
 }

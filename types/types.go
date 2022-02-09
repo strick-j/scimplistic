@@ -239,6 +239,7 @@ type Context struct {
 	HTTPSEnabled       bool       `json:"httpsEnabled,omitempty"`
 	Token              string     `json:"authToken,omitempty"`
 	CreateForm         CreateForm `json:"createForm,omitempty"`
+	SecretForm         CreateForm `json:"secretForm,omitempty"`
 	Safes              Safes      `json:"safes,omitempty"`
 	Users              User       `json:"users,omitempty"`
 	Groups             Group      `json:"groups,omitempty"`

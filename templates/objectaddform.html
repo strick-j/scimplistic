@@ -17,7 +17,7 @@
         </div>
         {{end}}
         <div class="mb-3 form-check form-switch">
-          <input class="form-check-input form-control" type="checkbox" value="1" id="EnableHTTPS" name="FormEnableHTTPS" {{ if .HTTPSEnabled}}checked{{end}}>
+          <input class="form-check-input form-control" type="checkbox" id="EnableHTTPS" name="FormEnableHTTPS" {{ if .HTTPSEnabled}}checked{{end}}>
           <label class="form-check-label" for="EnableHTTPS">
             Enable HTTPS via TLS (Certificate and Private Key Required)
           </label>

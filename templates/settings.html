@@ -1,0 +1,124 @@
+{{template "_head.html" .}}
+
+<div class="container-lg m-5 mx-auto">
+  <div class="row">
+    <div class="col">
+      <ul class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="nav-general-tab" data-bs-toggle="pill" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true">General</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="nav-secrets-tab" data-bs-toggle="pill" data-bs-target="#nav-secrets" type="button" role="tab" aria-controls="nav-secrets" aria-selected="false">Secrets</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div clsss="row">
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
+        <div class="col">
+          {{ if .CreateForm}} {{ $value := .CreateForm}} {{ $formrole := .CreateForm.FormRole}}
+          <form action="{{ $value.FormAction}}" method="{{$value.FormMethod}}" {{ if $value.FormEncType}} enctype="{{$value.FormEncType}}"{{end}} class="needs-validation" novalidate>
+            <Legend>{{ $value.FormLegend}}</Legend>
+            {{ if eq .Navigation "Settings"}}
+            {{ if .SettingsConfigured}}
+            <div class="alert alert-success" role="alert">
+              Settings have already been configued. If you submit again, previous settings will be overwritten.
+            </div>
+            {{else}}
+            <div class="alert alert-danger" role="alert">
+              Settings have not been configured. Please configure using the form below.
+            </div>
+            {{end}}
+            <div class="mb-3 form-check form-switch">
+              <input class="form-check-input form-control" type="checkbox" id="EnableHTTPS" name="FormEnableHTTPS" {{ if .HTTPSEnabled}}checked{{end}}>
+              <label class="form-check-label" for="EnableHTTPS">
+                Enable HTTPS via TLS (Certificate and Private Key Required)
+              </label>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="ServerIP" class="form-label">Scimplistic Server IP</label>
+                <input type="text" class="form-control" placeholder="127.0.0.1" aria-label="ServerIP" name="FormServerIP" id="ServerIP" required>
+              </div>
+              <div class="col">
+                <label for="ServerIP" class="form-label">Scimplistic Server Port</label>
+                <input type="text" class="form-control" placeholder="8080" aria-label="ServerPort" name="FormServerPort" id="ServerPort" required>
+              </div>
+            </div>
+            {{end}}
+            {{range $value.FormFields}}
+            <div class="mb-3">
+              <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
+              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{
+                if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}} {{ if .FieldPlaceHold}}
+                placeholder="{{.FieldPlaceHold}}" {{end}} {{ if .FieldDisabled}}disabled{{end}} {{if .FieldRequired}}required{{end}}>
+                {{ if .FieldDescBy}}<div id="{{.FieldDescBy}}" class="form-text">{{ .FieldHelp}}</div>{{end}}
+                {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
+            </div>
+            {{end}}
+            {{if eq $formrole "configuresettings"}}
+            <div class="mb-3">
+              <label for="oathtoken" class="form-label">SCIM OATH Token</label>
+              <textarea class="form-control" id="oathtoken" rows="8" name="FormOathToken" placeholder="{{ .Token}}" required></textarea>
+              <div class="invalid-feedback">SCIM Endpoint OATH Token is Required</div>
+            </div>
+            {{end}}
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
+              <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
+            </div>
+            {{ else}}
+            <div>
+              <h2>No form data available.</h2>
+            </div>
+            {{end}}
+            <button type="submit" value="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="nav-secrets" role="tabpanel" aria-labelledby="nav-secrets-tab">
+        <div class="col">
+          {{ if .SecretForm}} {{ $secValue := .SecretForm}} {{ $formrole := .SecretForm.FormRole}}
+          <form action="{{ $secValue.FormAction}}" method="{{$secValue.FormMethod}}" {{ if $secValue.FormEncType}} enctype="{{$secValue.FormEncType}}"{{end}} class="needs-validation" novalidate>
+            <Legend>{{ $secValue.FormLegend}}</Legend>    
+            <div class="mb-3 form-check form-switch">
+              <input class="form-check-input form-control" type="checkbox" id="EnableExtSecrets" name="FormEnableExtSecrets">
+              <label class="form-check-label" for="EnableExtSecrets">Enable external Secret Store</label>
+            </div>
+            {{range $secValue.FormFields}}
+            <div class="mb-3">
+              <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
+              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{
+                if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}} {{ if .FieldPlaceHold}}
+                placeholder="{{.FieldPlaceHold}}" {{end}} {{ if .FieldDisabled}}disabled{{end}} {{if .FieldRequired}}required{{end}}>
+                {{ if .FieldDescBy}}<div id="{{.FieldDescBy}}" class="form-text">{{ .FieldHelp}}</div>{{end}}
+                {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
+            </div>
+            {{end}}
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
+              <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
+            </div>
+            <button type="submit" value="submit" class="btn btn-primary">Submit</button>
+          </form>
+          {{ else}}
+          <div>
+            <h2>No form data available.</h2>
+          </div>
+          {{end}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="/static/js/formvalidate.js"></script>
+</main>
+{{template "_footer.html" .}}
+
+</body>
+
+</html>

@@ -124,16 +124,16 @@ func UsersActionHandler(w http.ResponseWriter, r *http.Request) {
 	// Switch to appropriate handler based on action type.
 	switch action {
 	case "add":
-		log.Println("INFO UsersActionHandler: Calling to GroupAddHandler")
+		log.Println("INFO UsersActionHandler: Calling to UserAddHandler")
 		UserAddHandler(w, r)
 	case "del":
-		log.Println("INFO UsersActionHandler: Calling to GroupDelHandler")
+		log.Println("INFO UsersActionHandler: Calling to UserDelHandler")
 		UserDelHandler(w, r)
 	case "update":
-		log.Println("INFO UsersActionHandler: Calling to GroupUpdateHandler")
+		log.Println("INFO UsersActionHandler: Calling to UserUpdateHandler")
 		UserUpdateHandler(w, r)
 	case "review":
-		log.Println("INFO UsersActionHandler: Calling to GroupReviewHandler")
+		log.Println("INFO UsersActionHandler: Calling to UserReviewHandler")
 		UserReviewHandler(w, r)
 	}
 }

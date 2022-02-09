@@ -23,12 +23,12 @@ func main() {
 	r.HandleFunc("/", views.IndexReq)
 
 	// Handler for Settings functions
-	r.HandleFunc("/settings/", views.SettingsForm)
-	r.HandleFunc("/configuresettings/", views.ConfigureSettings)
+	r.HandleFunc("/settings/", views.SettingsHandler)
+	r.HandleFunc("/settings/{type}", views.SettingsTypeHandler)
 
 	// Handlers for user functions
 	r.HandleFunc("/users/", views.UsersHandler)
-	r.HandleFunc("/users/{action}/{id}", views.UsersActionHandler)
+	r.HandleFunc("/users/{action}", views.UsersActionHandler)
 
 	// Handlers for group functions
 	r.HandleFunc("/groups/", views.GroupsHandler)
