@@ -23,21 +23,34 @@ func main() {
 	r.HandleFunc("/", views.IndexReq)
 
 	// Handler for Settings functions
-	r.HandleFunc("/settings/", views.SettingsHandler)
-	r.HandleFunc("/settings/{type}", views.SettingsTypeHandler)
+	setr := r.PathPrefix("/settings").Subrouter()
+	setr.HandleFunc("/", views.SettingsHandler)
+	setr.HandleFunc("/general", views.SettingsGenHandler)
+	setr.HandleFunc("/secrets", views.SettingsSecretHandler)
 
 	// Handlers for user functions
-	r.HandleFunc("/users/", views.UsersHandler)
-	r.HandleFunc("/users/{action}", views.UsersActionHandler)
+	ur := r.PathPrefix("/users").Subrouter()
+	ur.HandleFunc("/", views.UsersHandler).Methods("GET")
+	ur.HandleFunc("/{id}", views.UserHandler).Methods("GET")
+	ur.HandleFunc("/add", views.UserAddHandler).Methods("POST")
+	ur.HandleFunc("/update/{id}", views.UserUpdateHandler).Methods("POST")
+	ur.HandleFunc("/del/{id}", views.UserDelHandler).Methods("POST")
 
 	// Handlers for group functions
-	r.HandleFunc("/groups/", views.GroupsHandler)
-	r.HandleFunc("/groups/{action}", views.GroupsActionHandler)
-	r.HandleFunc("/groups/{action}/{id}", views.GroupsActionHandler)
+	gr := r.PathPrefix("/groups").Subrouter()
+	gr.HandleFunc("/", views.GroupsHandler).Methods("GET")
+	gr.HandleFunc("/{id}", views.GroupHandler).Methods("GET")
+	gr.HandleFunc("/add", views.GroupAddHandler).Methods("POST")
+	gr.HandleFunc("/update/{id}", views.GroupUpdateHandler).Methods("POST")
+	gr.HandleFunc("/del/{id}", views.GroupDelHandler).Methods("POST")
 
 	// Handlers for safe functions
-	r.HandleFunc("/safes/", views.SafesHandler)
-	r.HandleFunc("/safes/{action}", views.SafesActionHandler)
+	sr := r.PathPrefix("/safes").Subrouter()
+	sr.HandleFunc("/", views.SafesHandler).Methods("GET")
+	gr.HandleFunc("/{id}", views.SafeHandler).Methods("GET")
+	sr.HandleFunc("/add", views.SafeAddHandler).Methods("POST")
+	sr.HandleFunc("/update/{id}", views.SafeUpdateHandler).Methods("POST")
+	sr.HandleFunc("/del/{id}", views.SafeDelHandler).Methods("POST")
 
 	values, err := config.ReadConfig("settings.json")
 	if err != nil {

@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	config "github.com/strick-j/scimplistic/config"
 	types "github.com/strick-j/scimplistic/types"
 	utils "github.com/strick-j/scimplistic/utils"
@@ -125,31 +124,6 @@ func SettingsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 ///////////////////////// Settings Type Handlers /////////////////////////
-
-// SettingsTypeHandler will decide what is required based on the type assigned
-// gen: Proceed to SettingsGenHandler
-// sec: Proceed to SettingsSecretlHandler
-func SettingsTypeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Redirect(w, r, "/", http.StatusBadRequest)
-		return
-	}
-
-	// Extract action from URL using mux.Vars.
-	vars := mux.Vars(r)
-	action := vars["action"]
-	log.Println("INFO SettingsActionHandler: Action = ", action)
-
-	// Switch to appropriate handler based on action type.
-	switch action {
-	case "general":
-		log.Println("INFO SettingsActionHandler: Calling SettingsGenHandler")
-		SettingsGenHandler(w, r)
-	case "secret":
-		log.Println("INFO UsersActionHandler: Calling SettingSecretHandler")
-		SettingsSecretHandler(w, r)
-	}
-}
 
 func SettingsGenHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {

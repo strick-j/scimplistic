@@ -89,36 +89,19 @@ func SafesHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////// Safe Action Handlers /////////////////////////
 
-// SafesAction Handler will decide what is required based on the action provided.
-// add: Proceed to SafeAddHandler
-// del: Proceed to SafeDelHandler
-// update: Proceed to SafeUpdateHandler
-// review: Proceed to SafeReviewHandler
-func SafesActionHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Redirect(w, r, "/", http.StatusBadRequest)
+func SafeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	// Extract action from URL using mux.Vars.
-	vars := mux.Vars(r)
-	action := vars["action"]
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
+	redirectURL := GetRedirectUrl(r.Referer())
 
-	// Switch to appropriate handler based on action type.
-	switch action {
-	case "add":
-		log.Println("INFO SafesActionHandler: Calling SafeAddHandler")
-		SafeAddHandler(w, r)
-	case "del":
-		log.Println("INFO SafesActionHandler: Calling SafeDelHandler")
-		SafeDelHandler(w, r)
-	case "update":
-		log.Println("INFO SafesActionHandler: Calling SafeUpdateHandler")
-		SafeUpdateHandler(w, r)
-	case "review":
-		log.Println("INFO SafesActionHandler: Calling SafeReviewHandler")
-		SafeUpdateHandler(w, r)
-	}
+	// TODO: GET SINGLE GROUP INFO
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 // SafeAddHandler reads in form data from the modal that is triggered
@@ -182,7 +165,7 @@ func SafeDelHandler(w http.ResponseWriter, r *http.Request) {
 	//the delete transaction, we use the r.Referer() function to get the link
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}

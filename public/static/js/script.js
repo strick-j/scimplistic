@@ -15,8 +15,7 @@ $(document).ready(function(){
     var button = event.relatedTarget
     // Extract info from data-bs-* attributes
     var objectType = button.getAttribute('data-bs-objecttype')
-    
-    //Setup form action based on Object Type and ID
+    //Setup form action based on Object Type
     if (objectType == "group") {
       $("addObjectForm").attr("action","/groups/add");
     } else if (objectType == "user") {

@@ -105,37 +105,20 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////// User Action Handlers /////////////////////////
 
-// UsersActionHandler will decide what is required based on the action provided.
-// add: Proceed to UserAddHandler
-// del: Proceed to UserDelHandler
-// update: Proceed to UserUpdateHandler
-// review: Proceed to UserReviewHandler
-func UsersActionHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Redirect(w, r, "/", http.StatusBadRequest)
+// UserHandler Obtains all details about a specific user
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	// Extract action from URL using mux.Vars.
-	vars := mux.Vars(r)
-	action := vars["action"]
-	log.Println("INFO UsersActionHandler: Action = ", action)
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
+	redirectURL := GetRedirectUrl(r.Referer())
 
-	// Switch to appropriate handler based on action type.
-	switch action {
-	case "add":
-		log.Println("INFO UsersActionHandler: Calling to UserAddHandler")
-		UserAddHandler(w, r)
-	case "del":
-		log.Println("INFO UsersActionHandler: Calling to UserDelHandler")
-		UserDelHandler(w, r)
-	case "update":
-		log.Println("INFO UsersActionHandler: Calling to UserUpdateHandler")
-		UserUpdateHandler(w, r)
-	case "review":
-		log.Println("INFO UsersActionHandler: Calling to UserReviewHandler")
-		UserReviewHandler(w, r)
-	}
+	// TODO: GET SINGLE GROUP INFO
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 // UserAddHandler reads in form data from the modal that is triggered
@@ -215,7 +198,7 @@ func UserDelHandler(w http.ResponseWriter, r *http.Request) {
 	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}

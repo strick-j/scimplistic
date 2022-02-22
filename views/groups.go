@@ -69,11 +69,6 @@ func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 // update: Proceed to GroupUpdateHandler
 // review: Proceed to GroupReviewHandler
 func GroupsActionHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Redirect(w, r, "/", http.StatusBadRequest)
-		return
-	}
-
 	// Extract action from URL using mux.Vars.
 	vars := mux.Vars(r)
 	action := vars["action"]
@@ -93,6 +88,21 @@ func GroupsActionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("INFO GroupsActionHandler: Calling GroupReviewHandler")
 		GroupReviewHandler(w, r)
 	}
+}
+
+func GroupHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
+	redirectURL := GetRedirectUrl(r.Referer())
+
+	// TODO: GET SINGLE GROUP INFO
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 // GroupAddHandler reads in form data from the modal that is triggered
@@ -151,7 +161,7 @@ func GroupDelHandler(w http.ResponseWriter, r *http.Request) {
 	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}
