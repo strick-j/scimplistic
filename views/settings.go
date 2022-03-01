@@ -2,24 +2,27 @@ package views
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
-	config "github.com/strick-j/scimplistic/config"
-	types "github.com/strick-j/scimplistic/types"
-	utils "github.com/strick-j/scimplistic/utils"
+	log "github.com/sirupsen/logrus"
+	"github.com/strick-j/scimplistic/types"
+	"github.com/strick-j/scimplistic/utils"
 )
 
 //////////////////////// Settings Default Handler /////////////////////////
 
 func SettingsHandler(w http.ResponseWriter, r *http.Request) {
-	values, err := config.ReadConfig("settings.json")
+	logger := log.WithFields(log.Fields{
+		"Category": "Configuration",
+		"Function": "SettingsHandler",
+	})
+
+	values, err := utils.ReadConfig("settings.json")
 	if err != nil {
-		log.Println("ERROR SettingsHandler:", err)
+		logger.Error(err)
 	}
 
 	settingsFormData := types.CreateForm{
@@ -68,37 +71,10 @@ func SettingsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	secretFormData := types.CreateForm{
-		FormEncType: "multipart/form-data",
-		FormAction:  "/settings/secret",
-		FormMethod:  "POST",
-		FormLegend:  "Secrets Settings",
-		FormRole:    "secretsettings",
-		FormFields: []types.FormFields{
-			{
-				FieldLabel:     "oauthToken",
-				FieldLabelText: "Path to Auth Token Secret",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "FormOAUTHPath",
-				FieldIdNum:     1,
-			},
-			{
-				FieldLabel:     "postgresUsername",
-				FieldLabelText: "Username for PostreSQL server",
-				FieldInputType: "Text",
-				FieldRequired:  false,
-				FieldInputName: "psqlUname",
-				FieldIdNum:     2,
-			},
-			{
-				FieldLabel:     "postgresPassword",
-				FieldLabelText: "Path to PostgreSQL Password",
-				FieldInputType: "text",
-				FieldRequired:  false,
-				FieldInputName: "psqlPwd",
-				FieldIdNum:     3,
-			},
-		},
+		FormAction: "/settings/secrets",
+		FormMethod: "POST",
+		FormLegend: "Secrets Settings",
+		FormRole:   "secretsettings",
 	}
 
 	context := types.Context{
@@ -125,19 +101,36 @@ func SettingsHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////// Settings Type Handlers /////////////////////////
 
-func SettingsGenHandler(w http.ResponseWriter, r *http.Request) {
+func GeneralSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
+	redirectURL := GetRedirectUrl(r.Referer())
+
+	// Initialize logger for GeneralSettinsHandler
+	logger := log.WithFields(log.Fields{
+		"Category": "Server Processes",
+		"Function": "SettingsGenHandler",
+	})
+
+	logger.Info("Starting General Settings Process")
+
+	// Read in current config settings
+	values, err := utils.ReadConfig("settings.json")
+	if err != nil {
+		logger.Error(err)
+	}
+
 	// initialize  Variables
-	var serverIP, ext string
-	var serverPort int
+	var ext string
 	var fileUpload [2]string
 
 	// Read data from Configure Settings Form
-	log.Println("INFO ConfigureSettings: Reading Data from Configure Settings Form")
+	logger.Info("Reading Data from General Settings Form")
 
 	// Parse Form Data
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
@@ -147,18 +140,17 @@ func SettingsGenHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if user updated Server Port and set it
 	if len(r.FormValue("FormServerIP")) != 0 {
-		serverIP = r.FormValue("FormServerIP")
+		values.IP = r.FormValue("FormServerIP")
 	}
 
 	// Check if user updated Server Port and set it
 	if len(r.FormValue("FormServerPort")) != 0 {
-		serverPort, _ = strconv.Atoi(r.FormValue("FormServerPort"))
+		values.Port, _ = strconv.Atoi(r.FormValue("FormServerPort"))
 	}
 
 	// Read in standard strings, these fields are required in the form
-	scimURL := r.FormValue("FormSCIMURL")     // Required
-	scimToken := r.FormValue("FormOathToken") // Required
-	serverURL := r.FormValue("FormServerURL") // Required
+	values.ScimURL = r.FormValue("FormSCIMURL")    // Required
+	values.HostName = r.FormValue("FormServerURL") // Required
 
 	// Check for Files using range to iterate upload fields
 	index := 0
@@ -167,101 +159,155 @@ func SettingsGenHandler(w http.ResponseWriter, r *http.Request) {
 		if fileHeader != "" {
 			File, handler, err := r.FormFile(fileHeader)
 			if err != nil {
-				fmt.Println("ERROR ConfigureSettings: Error Retrieving the File")
-				fmt.Println(err)
+				logger.Error(err)
 				return
 			}
 			defer File.Close()
 
-			log.Printf("INFO ConfigureSettings: Uploading File: %+v\n", handler.Filename)
+			logger.Trace("Uploading File: %+v\n", handler.Filename)
 			// Catch filename file extenstion for filename
 			fileExt := strings.Split(handler.Filename, ".")
 			if ext = "pem"; fileExt[1] == "pem" || fileExt[1] == "crt" {
-				log.Println("INFO ConfigureSettings: Detected File Extension:", ext)
+				logger.Debug("Detected File Extension:", ext)
 			} else if ext = "key"; fileExt[1] == "key" {
-				log.Println("INFO ConfigureSettings: Detected File Extension:", ext)
+				logger.Debug("Detected File Extension:", ext)
 			} else {
-				log.Printf("Error ConfigurationSettings: Could not detect file extension")
+				logger.Error("Could not detect file extension")
 				http.Error(w, "The provided file format is not allowed. Valid Formats are .crt, .pem, and .key", http.StatusBadRequest)
 				return
 			}
 
 			tempFile, err := ioutil.TempFile("files", fileHeader+"-*."+ext)
 			if err != nil {
-				fmt.Println(err)
+				logger.Error(err)
 			}
 			fileUpload[index] = tempFile.Name()
 			defer tempFile.Close()
 
 			fileBytes, err := ioutil.ReadAll(File)
 			if err != nil {
-				fmt.Println(err)
+				logger.Error(err)
 			}
 			// write this byte array to our temporary file
 			tempFile.Write(fileBytes)
 
-			log.Printf("INFO ConfigureSettings: Uploaded Filename: %+v\n", fileUpload[index])
+			logger.Trace("Uploaded Filename: %+v\n", fileUpload[index])
 			index++
 		}
 	}
+	values.CertFile = fileUpload[0]
+	values.PrivKeyFile = fileUpload[1]
 
-	// Read in current config settings
-	configSettings, err := config.ReadConfig("settings.json")
-	if err != nil {
-		log.Println("ERROR Main:", err)
-	}
-
-	// Update configuration info in json file
-	configSettings = types.ConfigSettings{
-		ScimURL:     scimURL,
-		AuthToken:   scimToken,
-		PrevConf:    true,
-		IP:          serverIP,
-		Port:        serverPort,
-		ServerName:  serverURL,
-		HostName:    serverURL,
-		CertFile:    fileUpload[0],
-		PrivKeyFile: fileUpload[1],
-		OriginOnly:  false,
-		TLS:         false,
-	}
+	// Set Log Level - Default is "info"
+	values.LogLevel = r.FormValue("FormLogLevel")
+	values.OriginOnly = false
+	values.PrevConf = true
 
 	// Check if user enabled TLS.
 	// If user enabled TLS validate cert and key file
 	if len(r.Form.Get("FormEnableHTTPS")) != 0 {
-		log.Println("INFO ConfigureSettings: Enable TLS Selected, checking for required cert and private key")
+		logger.Trace("Enable TLS Selected, checking for required cert and private key")
 		if _, err := CheckTLS(fileUpload[0], fileUpload[1]); err != nil {
-			log.Println("ERROR ConfigureSettings: Error Verifying Certificate and PrivateKey")
-			configSettings.TLS = false
+			logger.Error(err)
+			values.TLS = false
 		} else {
-			log.Println("INFO ConfigureSettings: Verified Certificate and PrivateKey are available")
-			configSettings.TLS = true
+			logger.Trace("Verified Certificate and PrivateKey are available")
+			values.TLS = true
 		}
 	}
 
-	file, err := json.MarshalIndent(configSettings, "", "   ")
+	file, err := json.MarshalIndent(values, "", "   ")
 	if err != nil {
-		log.Println("ERROR ConfigureSettings:", err)
+		logger.Error(err)
 	}
 	err = ioutil.WriteFile("settings.json", file, 0644)
 	if err != nil {
-		log.Println("ERROR ConfigureSettings:", err)
+		logger.Error(err)
 	}
 
 	log.Println("INFO ConfigureSettings: Configuration File written.")
 
-	if configSettings.TLS {
-		log.Printf("INFO ConfigureSettings: Attempting to stop HTTP Listener and restart via HTTPS")
+	if values.TLS {
+		logger.Info("TLS configured - Restart to enable")
 	} else {
-		log.Printf("INFO ConfigureSettings: Attempting to stop HTTP Listener and restart")
+		logger.Info("TLS not configured")
 	}
 
-	if sdErr := utils.ShutDown(); sdErr != nil {
-		log.Println(sdErr.Error())
-	}
+	//if sdErr := utils.ShutDown(); sdErr != nil {
+	//	log.Println(sdErr.Error())
+	//}
+
+	logger.Info("General Settings Process completed")
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
-func SettingsSecretHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Update application to pull secrets from secret store
-	tpl.ExecuteTemplate(w, "/", nil)
+// SettingsSecretHandler reads in data and sets configurations for the
+// secrets page.
+func SecretSettingsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	// For best UX we want the user to be returned to the page making
+	// the delete transaction, we use the r.Referer() function to get the link.
+	redirectURL := GetRedirectUrl(r.Referer())
+
+	logger := log.WithFields(log.Fields{
+		"Category": "Server Processes",
+		"Function": "SecretSettingsHandler",
+	})
+
+	logger.Info("Starting Secret Settings Process")
+
+	// Read data from Secret Settings Form
+	logger.Trace("Reading Data from Secret Settings Form")
+
+	// Parse Form Data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Read in current config settings
+	values, err := utils.ReadConfig("settings.json")
+	if err != nil {
+		logger.Error(err)
+	}
+
+	// Check if user updated Client ID and set it
+	if len(r.FormValue("FormClientID")) != 0 {
+		values.ClientID = r.FormValue("FormClientID")
+	}
+
+	// Check if user updated Client Secret and set it
+	if len(r.FormValue("FormClientSecret")) != 0 {
+		values.ClientSecret = r.FormValue("FormClientSecret")
+	}
+
+	// Check if user updated Client Secret and set it
+	if len(r.FormValue("FormClientAppID")) != 0 {
+		values.ClientAppId = r.FormValue("FormClientAppID")
+	}
+
+	// Check if user updated Oauth Token and set it
+	if len(r.FormValue("FormOauthToken")) != 0 {
+		values.AuthToken = r.FormValue("FormOauthToken")
+	}
+
+	file, err := json.MarshalIndent(values, "", "   ")
+	if err != nil {
+		logger.Error(err)
+	}
+	err = ioutil.WriteFile("settings.json", file, 0644)
+	if err != nil {
+		logger.Error(err)
+	}
+
+	logger.Info("Configuration File written.")
+
+	//if sdErr := utils.ShutDown(); sdErr != nil {
+	//	log.Println(sdErr.Error())
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }

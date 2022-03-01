@@ -57,13 +57,14 @@
                 {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
             </div>
             {{end}}
-            {{if eq $formrole "configuresettings"}}
             <div class="mb-3">
-              <label for="oathtoken" class="form-label">SCIM OATH Token</label>
-              <textarea class="form-control" id="oathtoken" rows="8" name="FormOathToken" placeholder="{{ .Token}}" required></textarea>
-              <div class="invalid-feedback">SCIM Endpoint OATH Token is Required</div>
+              <label for="LogLevel" class="form-label">Select Log Level</label>
+              <select class="form-select" aria-label="LogLevel" id="LogLevel" name="FormLogLevel">
+                <option value="info" selected>Info</option>
+                <option value="trace">Trace</option>
+                <option value="debug">Debug</option>
+              </select>
             </div>
-            {{end}}
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
               <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
@@ -81,24 +82,37 @@
         <div class="col">
           {{ if .SecretForm}} {{ $secValue := .SecretForm}} {{ $formrole := .SecretForm.FormRole}}
           <form action="{{ $secValue.FormAction}}" method="{{$secValue.FormMethod}}" {{ if $secValue.FormEncType}} enctype="{{$secValue.FormEncType}}"{{end}} class="needs-validation" novalidate>
-            <Legend>{{ $secValue.FormLegend}}</Legend>    
-            <div class="mb-3 form-check form-switch">
-              <input class="form-check-input form-control" type="checkbox" id="EnableExtSecrets" name="FormEnableExtSecrets">
-              <label class="form-check-label" for="EnableExtSecrets">Enable external Secret Store</label>
+            <Legend>{{ $secValue.FormLegend}}</Legend>
+            {{ if .SettingsConfigured}}
+            <div class="alert alert-success" role="alert">
+              Settings have already been configued. If you submit again, previous settings will be overwritten.
             </div>
-            {{range $secValue.FormFields}}
+            {{else}}
+            <div class="alert alert-danger" role="alert">
+              Settings have not been configured. Please configure using the form below.
+            </div>
+            {{end}}  
             <div class="mb-3">
-              <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
-              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{
-                if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}} {{ if .FieldPlaceHold}}
-                placeholder="{{.FieldPlaceHold}}" {{end}} {{ if .FieldDisabled}}disabled{{end}} {{if .FieldRequired}}required{{end}}>
-                {{ if .FieldDescBy}}<div id="{{.FieldDescBy}}" class="form-text">{{ .FieldHelp}}</div>{{end}}
-                {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
+              <label for="oauthtoken" class="form-label">SCIM Oauth2 Token</label>
+              <textarea class="form-control" id="oathtoken" rows="8" name="FormOauthToken"></textarea>
             </div>
-            {{end}}
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
-              <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="ClientID" class="form-label">SCIM API Client ID</label>
+                <input type="text" class="form-control" aria-label="ServerIP" name="FormClientID" id="ClientID">
+              </div>
+              <div class="col">
+                <label for="ClientSecret" class="form-label">SCIM API Client Secret</label>
+                <input type="password" class="form-control" aria-label="ClientSecret" name="FormClientSecret" id="ClientSecret">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="ClientAppId" class="form-label">SCIM API Client Application ID</label>
+              <input type="text" class="form-control" aria-label="ClientAppID" name="FormClientAppID" id="ClientAppID">
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="accuracyCheck2" required>
+              <label class="form-check-label" for="accuracyCheck2">Please review the above information for accuracy.</label>
             </div>
             <button type="submit" value="submit" class="btn btn-primary">Submit</button>
           </form>

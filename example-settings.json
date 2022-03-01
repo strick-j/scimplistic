@@ -1,8 +1,11 @@
 {
-"prevConf": false,
+   "prevConf": false,
+   "apiEndpoint": "scim",
+   "apiVersion": "v2",
    "serverName": "localhost",
    "hostName": "localhost",
    "ip": "127.0.0.1",
    "port": 8080,
-   "tls": false
+   "tls": false,
+   "serviceLogging": false
 }

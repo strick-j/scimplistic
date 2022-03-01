@@ -1,12 +1,12 @@
 package views
 
 import (
-	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"github.com/strick-j/scimplistic/types"
 )
 
@@ -49,6 +49,11 @@ var safeFormData = types.CreateForm{
 	},
 }
 
+// Generate Struct for actions required by User functions
+var safeObject = Object{
+	Type: "containers",
+}
+
 ///////////////////////// Safe Default Handler /////////////////////////
 
 // SafesHandler is the function for displaying the basic Safes page.
@@ -58,31 +63,31 @@ func SafesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafesHandler"}).Info("Starting Safe retrieval Process")
+
+	safeObject.Method = "GET"
+
 	// Retrieve byte based object via BuildUrl function
 	log.Println("INFO SafesHandler: Attempting to obtain Safe Data from SCIM API.")
-	res, err := BuildUrl("Containers", "GET")
+	//res, err := BuildUrl("Containers", "GET")
+	res, _, err := safeObject.ScimType2Api()
 	if err != nil {
-		log.Println("ERROR SafesHandler:", err)
+		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafesHandler"}).Error(err)
 		return
-	} else {
-		log.Println("INFO SafesHandler: Safe Information Recieved")
 	}
 
-	// Declare and unmarshal byte based response
-	var bodyObject types.Safes
-	json.Unmarshal(res, &bodyObject)
-
-	// Creating a unique Safe Id for use in safe form creation
-	for i := 0; i < len(bodyObject.Resources); i++ {
-		bodyObject.Resources[i].UniqueSafeId = strconv.Itoa(i)
+	for i := 0; i < len(res.Resources); i++ {
+		res.Resources[i].UniqueSafeId = strconv.Itoa(i)
 	}
 
 	// Establish context for populating allinfo template
 	context := types.Context{
 		Navigation: "Safes",
 		CreateForm: safeFormData,
-		Safes:      bodyObject,
+		Safes:      *res,
 	}
+
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafesHandler"}).Info("Safe retrieval process completed  without error")
 
 	tpl.ExecuteTemplate(w, "objectallinfo.html", context)
 }
@@ -99,7 +104,23 @@ func SafeHandler(w http.ResponseWriter, r *http.Request) {
 	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	// TODO: GET SINGLE GROUP INFO
+	// Parse Vars from URL Variables
+	vars := mux.Vars(r)
+
+	safeObject.Method = "GET"
+	safeObject.Id = vars["id"]
+
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafeHandler"}).Info("Derived Request Id: ", safeObject.Id)
+
+	// Retrieve byte based object via BuildUrl function
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountHandler"}).Trace("Calling ScimType2Api to retrieve Safe info")
+	_, res, err := safeObject.ScimType2Api()
+	if err != nil {
+		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafeHandler"}).Error(err)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+
+	fmt.Println(res)
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -117,41 +138,41 @@ func SafeAddHandler(w http.ResponseWriter, r *http.Request) {
 	//the delete transaction, we use the r.Referer() function to get the link
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	log.Println("INFO SafeAddReq: Reading Data from Safe Add Form")
-	safeName := r.FormValue("FormSafeName")
-	displayName := r.FormValue("FormSafeDisplayName")
-	description := r.FormValue("FormSafeDescription")
-	scimschema := []string{"urn:ietf:params:scim:schemas:pam:1.0:Container"}
+	/*	log.Println("INFO SafeAddReq: Reading Data from Safe Add Form")
+		safeName := r.FormValue("FormSafeName")
+		displayName := r.FormValue("FormSafeDisplayName")
+		description := r.FormValue("FormSafeDescription")
+		scimschema := []string{"urn:ietf:params:scim:schemas:pam:1.0:Container"}
 
-	addSafeData := types.PostObjectRequest{
-		Name:        safeName,
-		DisplayName: displayName,
-		Description: description,
-		Schemas:     scimschema,
-	}
+		addSafeData := types.PostObjectRequest{
+			Name:        safeName,
+			DisplayName: displayName,
+			Description: description,
+			Schemas:     scimschema,
+		}
 
-	// Required as placeholder
-	blankstruct := types.PostUserRequest{}
+		// Required as placeholder
+		blankstruct := types.PostUserRequest{}
 
-	log.Println("INFO SafeAddReq: Sending POST to SCIM server for Safe addition.")
-	res, code, err := ScimAPI("Containers", "POST", addSafeData, blankstruct)
-	if code != 201 {
-		log.Println("ERROR SafeAddReq: Error Adding Safe - Response StatusCode:", code)
-		log.Println("ERROR SafeAddReq: Error Adding Safe", err)
-		return
-	} else {
-		log.Println("INFO SafeAddReq: Recieved SCIM Response - Valid HTTP StatusCode:", code)
-	}
+		log.Println("INFO SafeAddReq: Sending POST to SCIM server for Safe addition.")
+		res, code, err := ScimAPI("Containers", "POST", addSafeData, blankstruct)
+		if code != 201 {
+			log.Println("ERROR SafeAddReq: Error Adding Safe - Response StatusCode:", code)
+			log.Println("ERROR SafeAddReq: Error Adding Safe", err)
+			return
+		} else {
+			log.Println("INFO SafeAddReq: Recieved SCIM Response - Valid HTTP StatusCode:", code)
+		}
 
-	// Declare and unmarshal byte based response
-	var bodyObject types.PostSafeResponse
-	err = json.Unmarshal(res, &bodyObject)
-	if err != nil {
-		log.Println("ERROR SafeAddReq: ", err)
-		return
-	} else {
-		log.Println("INFO SafeAddReq: Safe Display Name and ID: ", bodyObject.DisplayName, "-", bodyObject.ID)
-	}
+		// Declare and unmarshal byte based response
+		var bodyObject types.PostSafeResponse
+		err = json.Unmarshal(res, &bodyObject)
+		if err != nil {
+			log.Println("ERROR SafeAddReq: ", err)
+			return
+		} else {
+			log.Println("INFO SafeAddReq: Safe Display Name and ID: ", bodyObject.DisplayName, "-", bodyObject.ID)
+		} */
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -171,28 +192,20 @@ func SafeDelHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("INFO SafeDelFunc: Starting Safe Delete Process")
 
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountDelHandler"}).Info("Starting Safe Delete Process")
+
 	// Retrieve USerID from URL to send to Del Function
 	vars := mux.Vars(r)
-	safeName := vars["id"]
-	log.Println("INFO SafeDelFunc: Safe ID to Delete:", safeName)
-
-	// Create Struct for passing data to SCIM API Delete Function
-	delObjectData := types.DelObjectRequest{
-		ResourceType: "containers",
-		ID:           safeName,
-	}
+	safeObject.Id = vars["id"]
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafeDelHandler"}).Trace("Safe Id: ", safeObject.Id)
 
 	// Delete Safe and recieve response from Delete Function
-	res, err := ScimApiDel(delObjectData)
-	if res == 204 {
-		log.Println("INFO SafeDelFunc: Safe Deleted:", safeName)
-		log.Println("INFO SafeDelFunc: Valid HTTP StatusCode Recieved:", res)
-		log.Println("SUCCESS SafeDelFunc: Safe Delete Process Complete.")
-	} else {
-		log.Println(err)
-		log.Println("ERROR SafeDelFunc: Invalid Http StatusCode Recieved:", res)
-		return
+	_, _, err := safeObject.ScimType2Api()
+	if err != nil {
+		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafeDelHandler"}).Error("Account Delete Process completed finished Error")
 	}
+
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "SafeDelHandler"}).Info("Account Delete Process completed finished Error")
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -201,20 +214,6 @@ func SafeDelHandler(w http.ResponseWriter, r *http.Request) {
 // when the Update button for a particular safe is pressed. This function
 // calls the SCIM function which submits the UPDATE action to the SCIM Endpoint.
 func SafeUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Read information from Update Form
-
-	// TODO: Parse info and form PUT/POST for Group Update
-
-	// TODO: Execute PUT/POST
-
-	// TODO: Return to Groups page after success
-	tpl.ExecuteTemplate(w, "/", nil)
-}
-
-// SafeReviewHandler reads in safe id information when the Review button
-// for a particular safe is pressed. This function then provides the user with
-// more information about a particular group.
-func SafeReviewHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Read information from Update Form
 
 	// TODO: Parse info and form PUT/POST for Group Update

@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/strick-j/scimplistic/config"
 	"github.com/strick-j/scimplistic/types"
+	"github.com/strick-j/scimplistic/utils"
 )
 
 var (
@@ -18,7 +18,7 @@ func init() {
 }
 
 func IndexReq(w http.ResponseWriter, r *http.Request) {
-	values, err := config.ReadConfig("settings.json")
+	values, err := utils.ReadConfig("settings.json")
 	if err != nil {
 		log.Println("ERROR IndexReq:", err)
 	}

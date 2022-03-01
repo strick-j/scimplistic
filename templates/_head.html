@@ -16,7 +16,6 @@
 
   <!-- Custom JS -->
   <script src="/static/js/formvalidate.js"></script>
-  <script src="/static/js/script.js"></script>
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -39,6 +38,9 @@
           </li>
           <li class="nav-item">
             <a class='nav-link {{if eq .Navigation "Safes"}} active {{end}}' href="/safes/">Safes</a>
+          </li>
+          <li class="nav-item">
+            <a class='nav-link {{if eq .Navigation "Accounts"}} active {{end}}' href="/accounts/">Accounts</a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Requests</a>

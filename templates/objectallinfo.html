@@ -135,6 +135,31 @@
   </div>
 </div>
 
+
+<!-- Modal triggered by inspect button -->
+<div class="modal fade" id="inspectObjectModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="inspect{{.Navigation}}Label"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="inspect{{.Navigation}}Label">{{ if eq .Navigation "Groups"}}Group{{else if eq
+          .Navigation "Users"}}User{{else if eq .Navigation "Safes"}}Safe{{end}} Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" id="inspectObjectForm" method="" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <p id="inspect-notification">Gathering data.</p>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container">
   <div class="row justify-content-md-center mt-3">
     <div class="col">
@@ -149,6 +174,7 @@
           {{ if eq .Navigation "Safes"}}<p class="card-text">{{ .Safes.TotalResults}}</p>
           {{ else if eq .Navigation "Users"}}<p class="card-text">{{ .Users.TotalResults}}</p>
           {{ else if eq .Navigation "Groups"}}<p class="card-text">{{ .Groups.TotalResults}}</p>
+          {{ else if eq .Navigation "Accounts"}}<p class="card-text">{{ .Accounts.TotalResults}}</p>
           {{end}}
         </div>
       </div>
@@ -216,7 +242,9 @@
                   </div>
                 </div>
                 <div class="ps-2 bd-highlight">
-                  <div type="button" class="btn btn-outline-secondary bi bi-search">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search" data-bs-id="{{.ID}}"
+                    data-bs-objecttype="Safe" data-bs-requestname="containers" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                    data-bs-target="#inspectObjectModal">
                     <span class="visually-hidden">Edit</span>
                   </div>
                 </div>
@@ -282,21 +310,23 @@
               {{end}}
               <div class="d-flex flex-row-reverse bd-highlight mb-3">
                 <div class="ps-2 bd-highlight">
-                  <div type="button" class="btn btn-outline-danger bi bi-trash-fill" data-bs-id="{{.ID}}"
-                    data-bs-objecttype="user" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                  <div type="button" class="btn btn-outline-danger bi bi-trash-fill" data-bs-id="{{ .ID}}"
+                    data-bs-objecttype="user" data-bs-displayname="{{ .DisplayName}}" data-bs-toggle="modal"
                     data-bs-target="#deleteObjectModal">
                     <span class="visually-hidden">Delete</span>
                   </div>
                 </div>
                 <div class="ps-2 bd-highlight">
-                  <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill"data-bs-id="{{.ID}}"
-                  data-bs-objecttype="user" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                  <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill"data-bs-id="{{ .ID}}"
+                  data-bs-objecttype="user" data-bs-displayname="{{ .DisplayName}}" data-bs-toggle="modal"
                   data-bs-target="#updateObjectModal">
                     <span class="visually-hidden">Edit</span>
                   </div>
                 </div>
                 <div class="ps-2 bd-highlight">
-                  <div type="button" class="btn btn-outline-secondary bi bi-search">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search" data-bs-id="{{ .ID}}"
+                  data-bs-objecttype="user" data-bs-requestname="users" data-bs-displayname="{{ .DisplayName}}" data-bs-toggle="modal"
+                  data-bs-target="#inspectObjectModal">
                     <span class="visually-hidden">Edit</span>
                   </div>
                 </div>
@@ -362,7 +392,78 @@
                   </div>
                 </div>
                 <div class="ps-2 bd-highlight">
-                  <div type="button" class="btn btn-outline-secondary bi bi-search">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search" data-bs-id="{{.ID}}"
+                  data-bs-objecttype="Group" data-bs-requestname="groups" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                  data-bs-target="#inspectObjectModal">
+                    <span class="visually-hidden">Edit</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{end}}
+      </div>
+      {{end}}
+      {{ if .Accounts}} {{ $value := .Accounts}}
+      <div class="accordion" id="accountAccordion">
+        {{range $value.Resources}}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading{{ .ID}}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse{{ .ID}}" aria-expanded="false" aria-controls="collapse{{ .ID}}">
+              {{ .Name}}
+            </button>
+          </h2>
+          <div id="collapse{{ .ID}}" class="accordion-collapse collapse" aria-labelledby="heading{{ .ID}}"
+            data-bs-parent="#accountAccordion">
+            <div class="accordion-body">
+              <strong>Account ID: </strong>{{ .ID}} <br>
+              <strong>Type: </strong>{{ .Type}} <br>
+              <strong>Safe: </strong>{{ .UrnIetfParamsScimSchemasCyberark10PrivilegedData.Safe}} <br>
+              <strong>Created: </strong>{{ .Meta.Created}} <br>
+              <strong>Last Modified: </strong>{{ .Meta.LastModified}} <br>
+              <strong>Location: </strong>{{ .Meta.Location}} <br>
+              <strong>Properties:</strong> <br>
+              <div class="row">
+                <div class="col ps-5">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{range .UrnIetfParamsScimSchemasCyberark10PrivilegedData.Properties}}
+                      <tr>
+                        <td>{{ .Key}}</td>
+                        <td>{{ .Value}}</td>
+                      </tr>
+                      {{end}}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-danger bi bi-trash-fill" data-bs-id="{{.ID}}"
+                    data-bs-objecttype="account" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                    data-bs-target="#deleteObjectModal">
+                    <span class="visually-hidden">Delete</span>
+                  </div>
+                </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-pencil-fill" data-bs-id="{{.ID}}"
+                    data-bs-objecttype="account" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                    data-bs-target="#updateObjectModal">
+                    <span class="visually-hidden">Edit</span>
+                  </div>
+                </div>
+                <div class="ps-2 bd-highlight">
+                  <div type="button" class="btn btn-outline-secondary bi bi-search" data-bs-id="{{.ID}}"
+                  data-bs-objecttype="account" data-bs-requestname="accounts" data-bs-displayname="{{.DisplayName}}" data-bs-toggle="modal"
+                  data-bs-target="#inspectObjectModal">
                     <span class="visually-hidden">Edit</span>
                   </div>
                 </div>
@@ -382,6 +483,7 @@
 <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <script src="/static/js/script.js"></script>
 <script src="/static/js/formvalidate.js"></script>
+<script src="/static/js/modalactions.js"></script>
 
 <!-- End Content-->
 </main>

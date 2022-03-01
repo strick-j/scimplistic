@@ -2,12 +2,14 @@ package utils
 
 import (
 	"context"
-	"log"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"github.com/strick-j/scimplistic/types"
 )
 
@@ -27,23 +29,28 @@ var (
 	resumeCallback func()
 
 	//SERVER VERSION NUMBER
-	version string = "1.0-BETA.0"
+	version string = "1.0-BETA.1"
 )
 
 func Start(s *types.ConfigSettings) {
-	log.Printf("INFO Start: Checking Server Status")
+	logger := log.WithFields(log.Fields{
+		"Category": "Server Processes",
+		"Function": "Start",
+	})
+
+	logger.Info("Checking Server Status")
 	if serverStarted || serverPaused {
-		log.Printf("INFO Start: Server running or paused")
+		logger.Info("INFO Start: Server running or paused")
 		return
 	}
 	serverStarted = true
-	log.Println("INFO Start: Starting server...")
+	logger.Info("Starting server...")
 	// Set server settings
 	if s != nil {
 		settings = s
 	} else {
 		// Default localhost settings
-		log.Println("INFO Start: Using default settings...")
+		logger.Info("Using default settings...")
 		settings = &types.ConfigSettings{
 			ServerName:     "!server!",
 			MaxConnections: 0,
@@ -68,28 +75,32 @@ func Start(s *types.ConfigSettings) {
 	// Start macro listener
 	go macroListener()
 
-	log.Println("INFO Start: Startup complete")
+	logger.Info("Startup complete")
 
 	// Wait for server shutdown
 	doneErr := <-serverEndChan
 
 	if doneErr != http.ErrServerClosed {
-		log.Println("ERROR Start: Fatal server error:", doneErr.Error())
+		logger.Error("Fatal server error:", doneErr.Error())
 
 	}
 
-	log.Println("INFO Start: Server shut-down completed")
+	logger.Info("Server shut-down completed")
 
 	serverStarted = false
 
 	if stopCallback != nil {
-		log.Println("executing stop callback")
+		logger.Info("executing stop callback")
 		stopCallback()
 	}
 
 }
 
 func makeServer(handleDir string, tls bool, router *mux.Router) *http.Server {
+	logger := log.WithFields(log.Fields{
+		"Category": "Server Processes",
+		"Function": "makeServer",
+	})
 	server := &http.Server{
 		Addr:         settings.IP + ":" + strconv.Itoa(settings.Port),
 		WriteTimeout: time.Second * 15,
@@ -99,19 +110,18 @@ func makeServer(handleDir string, tls bool, router *mux.Router) *http.Server {
 	}
 	if tls {
 		go func() {
-			log.Println("INFO makeServer: Attempting to start HTTPS server on IP:" + settings.IP + " and Port:" + strconv.Itoa(settings.Port))
+			logger.Info("Attempting to start HTTPS server on IP:" + settings.IP + " and Port:" + strconv.Itoa(settings.Port))
 			err := server.ListenAndServeTLS(settings.CertFile, settings.PrivKeyFile)
 			serverEndChan <- err
 		}()
 	} else {
 		go func() {
-			log.Println("INFO makeServer: Attempting to start server on IP:" + settings.IP + " and Port:" + strconv.Itoa(settings.Port))
+			logger.Info("Attempting to start server on IP:" + settings.IP + " and Port:" + strconv.Itoa(settings.Port))
 			err := server.ListenAndServe()
 			serverEndChan <- err
 		}()
 	}
 
-	//
 	return server
 }
 
@@ -128,11 +138,10 @@ func Pause() {
 
 		// Run callback
 		if pauseCallback != nil {
-			log.Println("running some callback", &pauseCallback)
 			pauseCallback()
 		}
 
-		log.Println("Server paused")
+		log.WithFields(log.Fields{"Category": "Server Processes", "Function": "Pause"}).Info("Server paused")
 
 		serverStarted = false
 	}
@@ -149,7 +158,7 @@ func Resume() {
 			resumeCallback()
 		}
 
-		log.Println("Server resumed")
+		log.WithFields(log.Fields{"Category": "Server Processes", "Function": "Resume"}).Info("Server resumed")
 
 		serverPaused = false
 	}
@@ -161,7 +170,7 @@ func ShutDown() error {
 		serverStopping = true
 
 		// Shut server down
-		log.Println("INFO Shutdown: Shutting server down...")
+		log.WithFields(log.Fields{"Category": "Server Processes", "Function": "ShutDown"}).Info("Shutting server down...")
 		shutdownErr := httpServer.Shutdown(context.Background())
 		if shutdownErr != http.ErrServerClosed {
 			return shutdownErr
@@ -171,9 +180,29 @@ func ShutDown() error {
 }
 
 func ServerPaused() {
-	log.Println("Establishing server Paused.")
+	log.WithFields(log.Fields{"Category": "Server Processes", "Function": "ServerPaused"}).Info("Establishing server Paused.")
 }
 
 func ServerStopped(action string) {
-	log.Println("Establishing server Stopped.")
+	log.WithFields(log.Fields{"Category": "Server Processes", "Function": "ServerStopped"}).Info("Establishing server Stopped.")
+}
+
+//////// Generic Utilities /////////////////////////////////////////////////////////////////////////////////////
+
+// ReadConfig will read the configuration json file to read the parameters
+// which will be passed in the config file
+func ReadConfig(fileName string) (config types.ConfigSettings, err error) {
+
+	configFile, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		log.Print("Unable to read config file, switching to flag mode")
+		return types.ConfigSettings{}, err
+	}
+	//log.Print(configFile)
+	err = json.Unmarshal(configFile, &config)
+	if err != nil {
+		log.Print("Invalid JSON")
+		return types.ConfigSettings{}, err
+	}
+	return config, nil
 }

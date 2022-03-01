@@ -2,12 +2,11 @@
 Scimplistic is a simplistic Go webapp to manage tasks, I built this tool to demonstrate the integration avaialble via SCIM for CyberArk Privileged Access Manager.
 
 ## Install and Configure
-### Automated 
-via Script: `bash install.sh`
 
 ### Manual
-1. `go get github.com/strick-j/scimplistic`
+1. `git clone https://github.com/strick-j/scimplistic`
 2. Change dir to respective folder and run go-build
+3. Rename "example-settings.json" to "settings.json"
 3. `./scimplistic`
 4. Open localhost:8080
 
@@ -19,17 +18,20 @@ This web app is in developement and should not be used in a production environme
 
 ## Currently Working Capabilities:
 - Users
-  - Retrieving all User data (GET https://scimurl/scim/users) via the Users tab
-  - Adding Users (POST https://scimurl/scim/users)
-  - Deleteing Users (DELETE https://scimurl/scim/users)
+  - Retrieving all User data (GET https://scimurl/scim/v2/users) via the Users tab
+  - Adding Users (POST https://scimurl/scim/v2/users)
+  - Deleteing Users (DELETE https://scimurl/scim/v2/users)
 - Users
-  - Retrieving all Safe data (GET https://scimurl/scim/containers) via the Safes tab
-  - Adding Safes (POST https://scimurl/scim/containers)
-  - Deleteing Safes (DELETE https://scimurl/scim/containers)
+  - Retrieving all Safe data (GET https://scimurl/scim/v2/containers) via the Safes tab
+  - Adding Safes (POST https://scimurl/scim/v2/containers)
+  - Deleteing Safes (DELETE https://scimurl/scim/v2/containers)
 - Groups
-  - Retrieving all Group data (GET https://scimurl/scim/groups) via the Groups tab
-  - Adding Groups (POST https://scimurl/scim/groups)
-  - Deleteing Groups (DELETE https://scimurl/scim/groups)
+  - Retrieving all Group data (GET https://scimurl/scim/v2/groups) via the Groups tab
+  - Adding Groups (POST https://scimurl/scim/v2/groups)
+  - Deleteing Groups (DELETE https://scimurl/scim/v2/groups)
+- Accounts
+  - Retrieving all Account data (GET https://scimurl/scim/v2/privilegeddata) via the Accounts tab
+ 
 
 ## Planned/Todo:
 - Build out update functions to allow for update of users, groups, safes
