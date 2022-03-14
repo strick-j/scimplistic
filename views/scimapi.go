@@ -72,7 +72,6 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	r := req.Clone(req.Context())
 	r.Header.Add("Content-Type", "application/json")
 	r.Header.Add("Accept", "application/json")
-
 	r.Header.Add("Authorization", "Bearer "+t.token)
 
 	return http.DefaultTransport.RoundTrip(r)
@@ -114,13 +113,17 @@ func (ob Object) ScimType1Api() (*types.ScimType1, *types.Type1Resources, error)
 			return res, nil, nil
 		}
 	case ob.Method == "POST":
-		res, err := s.AddType1Object(context.Background(), ob)
+		res, err := s.AddType1Object(ctx, ob)
 		if err != nil {
 			return nil, nil, err
 		}
 		return nil, res, nil
 	case ob.Method == "PUT":
-		// Do Something
+		res, err := s.UpdateType1Object(ctx, ob)
+		if err != nil {
+			return nil, nil, err
+		}
+		return nil, res, nil
 	case ob.Method == "DELETE":
 		if ob.Id == "" {
 			return nil, nil, fmt.Errorf("user id required for DELETE")
@@ -212,20 +215,20 @@ func (ob Object) ScimType2Api() (*types.ScimType2, *types.Type2Resources, error)
 			return nil, res, nil
 		}
 	case ob.Method == "POST":
-		res, err := s.AddType2Object(context.Background(), ob)
+		res, err := s.AddType2Object(ctx, ob)
 		if err != nil {
 			return nil, nil, err
 		}
 		return nil, res, nil
 	case ob.Method == "PUT":
-		res, err := s.UpdateType2Object(context.Background(), ob)
+		res, err := s.UpdateType2Object(ctx, ob)
 		if err != nil {
 			return nil, nil, err
 		}
 		return nil, res, nil
 	case ob.Method == "DELETE":
 		if ob.Id == "" {
-			return nil, nil, fmt.Errorf("Object ID required for DELETE")
+			return nil, nil, fmt.Errorf("object ID required for DELETE")
 		} else if ob.Id != "" {
 			if err := s.DeleteType2Object(ctx, ob); err != nil {
 				return nil, nil, err

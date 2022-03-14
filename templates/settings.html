@@ -1,135 +1,155 @@
 {{template "_head.html" .}}
 
 <div class="container-lg m-5 mx-auto">
-  <div class="row">
-    <div class="col">
-      <ul class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="nav-general-tab" data-bs-toggle="pill" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true">General</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="nav-secrets-tab" data-bs-toggle="pill" data-bs-target="#nav-secrets" type="button" role="tab" aria-controls="nav-secrets" aria-selected="false">Secrets</button>
-        </li>
-      </ul>
-    </div>
-  </div>
   <div clsss="row">
-    <div class="tab-content" id="nav-tabContent">
-      <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-        <div class="col">
-          {{ if .CreateForm}} {{ $value := .CreateForm}} {{ $formrole := .CreateForm.FormRole}}
-          <form action="{{ $value.FormAction}}" method="{{$value.FormMethod}}" {{ if $value.FormEncType}} enctype="{{$value.FormEncType}}"{{end}} class="needs-validation" novalidate>
-            <Legend>{{ $value.FormLegend}}</Legend>
-            {{ if eq .Navigation "Settings"}}
-            {{ if .SettingsConfigured}}
-            <div class="alert alert-success" role="alert">
-              Settings have already been configued. If you submit again, previous settings will be overwritten.
+    <div class="col">
+      {{ if .CreateForm}} {{ $value := .CreateForm}} {{ $formrole := .CreateForm.FormRole}}
+      <form action="{{ $value.FormAction}}" method="{{ $value.FormMethod}}" {{ if $value.FormEncType}} enctype="{{ $value.FormEncType}}"{{end}} class="needs-validation" novalidate>
+        <Legend>{{ $value.FormLegend}}</Legend>
+        {{ if eq .Navigation "Settings"}}
+        {{ if .SettingsConfigured}}
+        <div class="alert alert-success" role="alert">
+          Settings have already been configued. If you submit again, previous settings will be overwritten.
+        </div>
+        {{else}}
+        <div class="alert alert-danger" role="alert">
+          Settings have not been configured. Please configure using the form below.
+        </div>
+        {{end}}
+        <div class="mb-3 form-check form-switch">
+          <input class="form-check-input form-control" type="checkbox" id="EnableHTTPS" name="FormEnableHTTPS" {{ if .HTTPSEnabled}}checked{{end}}>
+          <label class="form-check-label" for="EnableHTTPS">
+            Enable HTTPS via TLS? (Certificate and Private Key Required)
+          </label>
+        </div>
+        <div class="mb-3 form-check form-switch">
+          <input class="form-check-input form-control" type="checkbox" id="EnableDatabase" name="FormEnableDatabase" {{ if .Settings.DatabaseEnabled}}checked{{end}}>
+          <label class="form-check-label" for="EnableDatabase">
+            Enable Database? (Database IP, Port, Name, Username, and Password Required)
+          </label>
+        </div>
+        <div class="section" id="ServerSettings">
+          <h6 class="mt-4">Scimplistic Server Settings</h4>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="ServerIP" class="form-label">Server IP</label>
+              <input type="text" class="form-control" placeholder="127.0.0.1" value="{{ .Settings.IP}}" aria-label="ServerIP" name="FormServerIP" id="ServerIP" required>
             </div>
-            {{else}}
-            <div class="alert alert-danger" role="alert">
-              Settings have not been configured. Please configure using the form below.
+            <div class="col">
+              <label for="ServerIP" class="form-label">Server Port</label>
+              <input type="text" class="form-control" placeholder="8080" value="{{ .Settings.Port}}" aria-label="ServerPort" name="FormServerPort" id="ServerPort" required>
             </div>
-            {{end}}
-            <div class="mb-3 form-check form-switch">
-              <input class="form-check-input form-control" type="checkbox" id="EnableHTTPS" name="FormEnableHTTPS" {{ if .HTTPSEnabled}}checked{{end}}>
-              <label class="form-check-label" for="EnableHTTPS">
-                Enable HTTPS via TLS (Certificate and Private Key Required)
-              </label>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="ServerHostname" class="form-label">Server URL</label>
+              <input type="text" class="form-control" placeholder="localhost" value="{{ .Settings.HostName}}" aria-label="ServerHostname" name="FormServerURL" id="ServerHostname" required>
             </div>
-            <div class="row mb-3">
-              <div class="col">
-                <label for="ServerIP" class="form-label">Scimplistic Server IP</label>
-                <input type="text" class="form-control" placeholder="127.0.0.1" aria-label="ServerIP" name="FormServerIP" id="ServerIP" required>
-              </div>
-              <div class="col">
-                <label for="ServerIP" class="form-label">Scimplistic Server Port</label>
-                <input type="text" class="form-control" placeholder="8080" aria-label="ServerPort" name="FormServerPort" id="ServerPort" required>
-              </div>
-            </div>
-            {{end}}
-            {{range $value.FormFields}}
-            <div class="mb-3">
-              <label for="{{ .FieldLabel}}" class="form-label">{{ .FieldLabelText}}</label>
-              <input type="{{ .FieldInputType}}" name="{{ .FieldInputName}}" class="form-control" id="{{ .FieldLabel}}" {{
-                if .FieldDescBy}} aria-describedby="{{ .FieldDescBy}}" {{end}} {{ if .FieldPlaceHold}}
-                placeholder="{{.FieldPlaceHold}}" {{end}} {{ if .FieldDisabled}}disabled{{end}} {{if .FieldRequired}}required{{end}}>
-                {{ if .FieldDescBy}}<div id="{{.FieldDescBy}}" class="form-text">{{ .FieldHelp}}</div>{{end}}
-                {{ if .FieldInFeedback}}<div class="invalid-feedback">{{ .FieldInFeedback}}</div>{{end}}
-            </div>
-            {{end}}
-            <div class="mb-3">
-              <label for="LogLevel" class="form-label">Select Log Level</label>
+            <div class="col">
+              <label for="LogLevel" class="form-label">Log Level</label>
               <select class="form-select" aria-label="LogLevel" id="LogLevel" name="FormLogLevel">
                 <option value="info" selected>Info</option>
                 <option value="trace">Trace</option>
                 <option value="debug">Debug</option>
               </select>
             </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
-              <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
-            </div>
-            {{ else}}
-            <div>
-              <h2>No form data available.</h2>
-            </div>
-            {{end}}
-            <button type="submit" value="submit" class="btn btn-primary">Submit</button>
-          </form>
-        </div>
-      </div>
-      <div class="tab-pane fade" id="nav-secrets" role="tabpanel" aria-labelledby="nav-secrets-tab">
-        <div class="col">
-          {{ if .SecretForm}} {{ $secValue := .SecretForm}} {{ $formrole := .SecretForm.FormRole}}
-          <form action="{{ $secValue.FormAction}}" method="{{$secValue.FormMethod}}" {{ if $secValue.FormEncType}} enctype="{{$secValue.FormEncType}}"{{end}} class="needs-validation" novalidate>
-            <Legend>{{ $secValue.FormLegend}}</Legend>
-            {{ if .SettingsConfigured}}
-            <div class="alert alert-success" role="alert">
-              Settings have already been configued. If you submit again, previous settings will be overwritten.
-            </div>
-            {{else}}
-            <div class="alert alert-danger" role="alert">
-              Settings have not been configured. Please configure using the form below.
-            </div>
-            {{end}}  
-            <div class="mb-3">
-              <label for="oauthtoken" class="form-label">SCIM Oauth2 Token</label>
-              <textarea class="form-control" id="oathtoken" rows="8" name="FormOauthToken"></textarea>
-            </div>
-            <div class="row mb-3">
-              <div class="col">
-                <label for="ClientID" class="form-label">SCIM API Client ID</label>
-                <input type="text" class="form-control" aria-label="ServerIP" name="FormClientID" id="ClientID">
-              </div>
-              <div class="col">
-                <label for="ClientSecret" class="form-label">SCIM API Client Secret</label>
-                <input type="password" class="form-control" aria-label="ClientSecret" name="FormClientSecret" id="ClientSecret">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="ClientAppId" class="form-label">SCIM API Client Application ID</label>
-              <input type="text" class="form-control" aria-label="ClientAppID" name="FormClientAppID" id="ClientAppID">
-            </div>
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="accuracyCheck2" required>
-              <label class="form-check-label" for="accuracyCheck2">Please review the above information for accuracy.</label>
-            </div>
-            <button type="submit" value="submit" class="btn btn-primary">Submit</button>
-          </form>
-          {{ else}}
-          <div>
-            <h2>No form data available.</h2>
           </div>
-          {{end}}
+          <div class="row mb-3" id="TlsGroup">
+            <div class="col">
+              <label for="ServerCertFile" class="form-label">Server Certificate for TLS</label>
+              <input type="file" class="form-control" placeholder="" aria-label="ServerCertFile" value="{{ .Settings.CertFile}}" name="ServerCert" id="ServerCertFile">
+            </div>
+            <div class="col">
+              <label for="ServerCertKey" class="form-label">Server Private Key for TLS</label>
+              <input type="file" class="form-control" placeholder="" aria-label="ServerCertKey" value="{{ .Settings.PrivKeyFile}}"  name="ServerKey" id="ServerCertKey">
+            </div>
+          </div>
         </div>
-      </div>
+        <div class="section" id="SCIMSettings">
+          <h6 class="mt-4">SCIM Server Settings</h4>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="ScimUrl" class="form-label">SCIM Server URL</label>
+              <input type="text" class="form-control" placeholder="https://targetserver.com" aria-label="ScimUrl" value="{{ .Settings.ScimURL}}"  name="FormSCIMURL" id="ScimUrl" required>
+              <div class="invalid-feedback">SCIM Endpoint URL is Required.</div>
+            </div>
+            <div class="col">
+              <label for="AuthMethod" class="form-label">Select SCIM Server Authentication Method</label>
+              <select class="form-select" aria-label="AuthMethod" id="AuthMethod" name="FormAuthMethod" required>
+                <option {{ if .Settings.AuthDisabled}}selected disabled value{{end}}>Authentication Method</option>
+                <option value="tokenauth" {{ if .Settings.TokenEnabled}}selected{{end}}>Bearer Token</option>
+                <option value="credauth" {{ if .Settings.CredEnabled}}selected{{end}}>Client Credentials</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3" id="OauthTokenField">
+            <label for="oauthtoken" class="form-label">SCIM Bearer Token</label>
+            <textarea class="form-control" id="oathtoken" rows="8" name="FormOauthToken"></textarea>
+          </div>
+          <div class="row mb-3" id="ClientCredsGroup">
+            <div class="col">
+              <label for="ClientID" class="form-label">SCIM API Client ID</label>
+              <input type="text" class="form-control" value="{{ .Settings.ClientID}}" aria-label="ServerIP" name="FormClientID" id="ClientID">
+            </div>
+            <div class="col">
+              <label for="ClientSecret" class="form-label">SCIM API Client Secret</label>
+              <input type="password" class="form-control" value="{{ .Settings.ClientSecret}}" aria-label="ClientSecret" name="FormClientSecret" id="ClientSecret">
+            </div>
+            <div class="col">
+              <label for="ClientAppID" class="form-label">SCIM API Client Application ID</label>
+              <input type="text" class="form-control" value="{{ .Settings.ClientAppID}}" aria-label="ClientAppID" name="FormClientAppID" id="ClientAppID">
+            </div>
+          </div>
+        </div>
+        <div class="section" id="DatabaseGroup">
+          <h6 class="mb-t">Database Settings</h4>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="DatabaseIP" class="form-label">Database IP</label>
+              <input type="text" class="form-control" placeholder="127.0.0.1" value="{{ .Settings.DatabaseIP}}" aria-label="DatabaseIP" name="FormDatabaseIP" id="DatabaseIP">
+            </div>
+            <div class="col">
+              <label for="DatabasePort" class="form-label">Database Port</label>
+              <input type="text" class="form-control" placeholder="5432" value="{{ .Settings.DatabasePort}}" aria-label="DatabasePort" name="FormDatabasePort" id="DatabasePort">
+            </div>
+            <div class="col">
+              <label for="DatabaseName" class="form-label">Database Name</label>
+              <input type="text" class="form-control" placeholder="Postgres" value="{{ .Settings.DatabaseName}}" aria-label="DatabaseName" name="FormDatabaseName" id="DatabaseName">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="DatabaseUser" class="form-label">Database Username</label>
+              <input type="text" class="form-control" placeholder="postgres" value="{{ .Settings.DatabaseUser}}" aria-label="DatabaseUser" name="FormDatabaseUser" id="DatabaseUser">
+            </div>
+            <div class="col">
+              <label for="DatabasePass" class="form-label">Postgres Database Password</label>
+              <input type="password" class="form-control" placeholder="" value="{{ .Settings.DatabasePass}}" aria-label="DatabasePass" name="FormDatabasePass" id="DatabasePass">
+            </div>
+          </div>
+        </div>
+        {{end}}
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="accuracyCheck" required>
+          <label class="form-check-label" for="accuracyCheck">Please review the above information for accuracy.</label>
+        </div>
+        {{ else}}
+        <div>
+          <h2>No form data available.</h2>
+        </div>
+        {{end}}
+        <button type="submit" value="submit" class="btn btn-primary">Submit</button>
+      </form>
     </div>
   </div>
 </div>
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script src="/static/js/formvalidate.js"></script>
+<script src="/static/js/dynamicsettings.js"></script>
 </main>
 {{template "_footer.html" .}}
 

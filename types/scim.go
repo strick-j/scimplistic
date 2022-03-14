@@ -84,6 +84,7 @@ type Type2Resources struct {
 	Owner                                             Owner                                             `json:"owner,omitempty"`
 	PrivilegedData                                    []PrivilegedData                                  `json:"privilegedData,omitempty"`
 	SchemaExtensions                                  []SchemaExtensions                                `json:"schemaExtensions,omitempty"`
+	Operations                                        []Operations                                      `json:"Operations"`
 	Schemas                                           []string                                          `json:"schemas,omitempty"`
 	Type                                              string                                            `json:"type,omitempty"`
 	UniqueSafeId                                      string                                            `json:"uniqueSafeId,omitempty"`
@@ -175,6 +176,19 @@ type Bulk struct {
 type Filter struct {
 	Supported  bool `json:"supported"`
 	MaxResults int  `json:"maxResults"`
+}
+
+// Used in Privileged Data PATCH functions
+type Value struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// Used in Privileged Data PATCH functions
+type Operations struct {
+	Op    string  `json:"op"`
+	Path  string  `json:"path"`
+	Value []Value `json:"value"`
 }
 
 type ChangePassword struct {

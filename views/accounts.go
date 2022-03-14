@@ -17,40 +17,45 @@ var accountFormData = types.CreateForm{
 	FormLegend: "Add Account Form",
 	FormFields: []types.FormFields{
 		{
-			FieldLabel:      "AccountName",
-			FieldLabelText:  "Account Name",
-			FieldInputType:  "Text",
-			FieldRequired:   true,
-			FieldInputName:  "FormAccountName",
-			FieldInFeedback: "Account Name is Required.",
-			FieldIdNum:      1,
-		},
-		{
-			FieldLabel:     "DisplayName",
-			FieldLabelText: "Account Display Name",
+			FieldLabel:     "AccountUserName",
+			FieldLabelText: "User Name",
 			FieldInputType: "Text",
 			FieldRequired:  false,
-			FieldInputName: "FormAccountDisplayName",
-			FieldDescBy:    "displayHelp",
+			FieldInputName: "FormAccountUserName",
+			FieldDescBy:    "usernameHelp",
+			FieldHelp:      "Optional",
+			FieldIdNum:     1,
+		},
+		{
+			FieldLabel:     "AccountSecret",
+			FieldLabelText: "Password",
+			FieldInputType: "Password",
+			FieldRequired:  false,
+			FieldInputName: "FormAccountSecret",
+			FieldDescBy:    "secretHelp",
 			FieldHelp:      "Optional",
 			FieldIdNum:     2,
 		},
 		{
-			FieldLabel:     "AccountDescription",
-			FieldLabelText: "Description",
+			FieldLabel:     "AccountAddress",
+			FieldLabelText: "Account Address",
 			FieldInputType: "Text",
 			FieldRequired:  false,
-			FieldInputName: "FormAccountDescription",
-			FieldDescBy:    "descHelp",
+			FieldInputName: "FormAccountAddress",
+			FieldDescBy:    "addressHelp",
 			FieldHelp:      "Optional",
 			FieldIdNum:     3,
 		},
+		{
+			FieldLabel:      "AccountPlatformId",
+			FieldLabelText:  "Platform ID",
+			FieldInputType:  "Text",
+			FieldRequired:   true,
+			FieldInputName:  "FormAccountPlatformId",
+			FieldInFeedback: "Platform ID is Required",
+			FieldIdNum:      4,
+		},
 	},
-}
-
-// Generate Struct for actions required by User functions
-var accountObject = Object{
-	Type: "privilegedData",
 }
 
 ///////////////////////// Account Default Handler /////////////////////////
@@ -64,9 +69,12 @@ func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountsHandler"}).Info("Starting Accounts retrieval Process")
 
-	accountObject.Method = "GET"
+	ob := Object{
+		Type:   "privilegedData",
+		Method: "GET",
+	}
 
-	res, _, err := accountObject.ScimType2Api()
+	res, _, err := ob.ScimType2Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountsHandler"}).Error(err)
 		return
@@ -103,13 +111,16 @@ func AccountHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Initialize Object Struct for SCIM Request
-	accountObject.Id = vars["id"]
-	accountObject.Method = "GET"
-	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountHandler"}).Trace("Request Id: ", accountObject.Id)
+	ob := Object{
+		Type:   "privilegedData",
+		Method: "GET",
+		Id:     vars["id"],
+	}
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountHandler"}).Trace("Request Id: ", ob.Id)
 
 	// Retrieve byte based object via BuildUrl function
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountHandler"}).Trace("Calling ScimType2Api to retrieve Account info")
-	_, res, err := accountObject.ScimType2Api()
+	_, res, err := ob.ScimType2Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountHandler"}).Error(err)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -145,7 +156,7 @@ func AccountAddHandler(w http.ResponseWriter, r *http.Request) {
 func AccountDelHandler(w http.ResponseWriter, r *http.Request) {
 	//for best UX we want the user to be returned to the page making
 	//the delete transaction, we use the r.Referer() function to get the link
-	redirectURL := GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrlNoId(r.Referer())
 
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountDelHandler"}).Info("Starting Account Delete Process")
 
@@ -156,13 +167,16 @@ func AccountDelHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve USerID from URL to send to Del Function
 	vars := mux.Vars(r)
-	accountObject.Id = vars["id"]
-	accountObject.Method = "DELETE"
+	ob := Object{
+		Type:   "privilegedData",
+		Method: "DELETE",
+		Id:     vars["id"],
+	}
 
-	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountDelHandler"}).Trace("Request Id: ", accountObject.Id)
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountDelHandler"}).Trace("Request Id: ", ob.Id)
 
 	// Delete Account - No response unless error
-	_, _, err := accountObject.ScimType2Api()
+	_, _, err := ob.ScimType2Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "AccountDelHandler"}).Error("Account Delete Process completed finished Error")
 	}
@@ -188,14 +202,14 @@ func AccountUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////// Account Form Handlers /////////////////////////
 
-// SafeAddForm is the form for collecting data to add a new Safe
+// AccountAddForm is the form for collecting data to add a new Safe
 func AccountAddForm(w http.ResponseWriter, r *http.Request) {
-	log.Printf("INFO SafeAddForm: Initializing Add Safe Form")
+	log.WithFields(log.Fields{"Category": "Form Handler", "Function": "GroupAddForm"}).Trace("Initializing Add Group Form")
 
 	// Establish context for populating add safe template
 	context := types.Context{
-		Navigation: "Add Safe",
-		CreateForm: safeFormData,
+		Navigation: "Add Account",
+		CreateForm: accountFormData,
 	}
 
 	// Pass form data to form template to dynamically build form

@@ -195,13 +195,13 @@ func ReadConfig(fileName string) (config types.ConfigSettings, err error) {
 
 	configFile, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Print("Unable to read config file, switching to flag mode")
+		log.WithFields(log.Fields{"Category": "Server Processes", "Function": "ReadConfig"}).Error("Unable to read config file, switching to flag mode")
 		return types.ConfigSettings{}, err
 	}
 	//log.Print(configFile)
 	err = json.Unmarshal(configFile, &config)
 	if err != nil {
-		log.Print("Invalid JSON")
+		log.WithFields(log.Fields{"Category": "Server Processes", "Function": "ReadConfig"}).Error("Invalid JSON")
 		return types.ConfigSettings{}, err
 	}
 	return config, nil

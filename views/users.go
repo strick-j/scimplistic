@@ -70,11 +70,6 @@ var userFormData = types.CreateForm{
 	},
 }
 
-// Generate Struct for actions required by User functions
-var userObject = Object{
-	Type: "users",
-}
-
 ///////////////////////// User Default Handler /////////////////////////
 
 //UsersHandler is the function for requesting user info for collecting data to add a new user
@@ -84,13 +79,15 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Add "method" to userObject
-	userObject.Method = "GET"
+	ob := Object{
+		Type:   "users",
+		Method: "GET",
+	}
 
 	// Retrieve byte based object via ScimApiGetObject function
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UsersHandler"}).Info("Attempting to obtain User Data from SCIM API")
 	//res, err := BuildUrl("Users", "GET")
-	res, _, err := userObject.ScimType1Api()
+	res, _, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UsersHandler"}).Error(err)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -117,23 +114,20 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For best UX we want the user to be returned to the page making
-	// the delete transaction, we use the r.Referer() function to get the link.
-	//Test := GetRedirectUrlNoId(r.Referer())
-	//redirectURL := "https://scimplistic.strlab.us/users"
-
-	//fmt.Println(Test)
-
 	// Parse Vars from URL Variables
 	vars := mux.Vars(r)
 
 	// Add "method" and "id" to userObject
-	userObject.Id = vars["id"]
-	userObject.Method = "GET" // Initialize Object Struct for SCIM Request
+
+	ob := Object{
+		Type:   "users",
+		Method: "GET",
+		Id:     vars["id"],
+	}
 
 	// Retrieve byte based object via BuildUrl function
-	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserHandler"}).Info("Attempting to retrieve User Info for User: ", userObject.Id)
-	res, _, err := userObject.ScimType1Api()
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserHandler"}).Info("Attempting to retrieve User Info for User: ", ob.Id)
+	res, _, err := ob.ScimType1Api()
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
@@ -187,11 +181,14 @@ func UserAddHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add "method" and "payload" to userObject
-	userObject.Method = "POST"
-	userObject.Type1Resources = *addUserData
+	ob := Object{
+		Type:           "users",
+		Method:         "POST",
+		Type1Resources: *addUserData,
+	}
 
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserAddHandler"}).Trace("Calling ScimType1Api with User Add data")
-	_, res, err := userObject.ScimType1Api()
+	_, res, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserAddHandler"}).Error(err)
 	}
@@ -218,12 +215,14 @@ func UserDelHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserDelHandler"}).Info("User ID to Delete: ", vars["id"])
 
-	// Add "method" and "id" to userObject
-	userObject.Method = "DELETE"
-	userObject.Id = vars["id"]
+	ob := Object{
+		Type:   "users",
+		Method: "DELETE",
+		Id:     vars["id"],
+	}
 
 	// Call ScimUserApi with userObject Details
-	_, _, err := userObject.ScimType1Api()
+	_, _, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserDelHandler"}).Error(err)
 	}
@@ -251,7 +250,7 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 // UserAddForm is the form utilized to build the Modal when the
 // Add button is pressed from the Users page.
 func UserAddForm(w http.ResponseWriter, r *http.Request) {
-	log.Println("INFO UserAddForm: Initializing Add User Form")
+	log.WithFields(log.Fields{"Category": "Form Handler", "Function": "UserAddForm"}).Trace("Initializing Add User Form")
 
 	// Establish context for populating add user template
 	context := types.Context{

@@ -62,7 +62,6 @@ func main() {
 	setr := r.PathPrefix("/settings").Subrouter()
 	setr.HandleFunc("/", views.SettingsHandler)
 	setr.HandleFunc("/general", views.GeneralSettingsHandler)
-	setr.HandleFunc("/secrets", views.SecretSettingsHandler)
 
 	// Handlers for user functions
 	ur := r.PathPrefix("/users").Subrouter()

@@ -21,7 +21,7 @@ func OauthCredClient() *oauth2.Token {
 	var credConfig = clientcredentials.Config{
 		ClientID:     values.ClientID,
 		ClientSecret: values.ClientSecret,
-		TokenURL:     "https://" + values.ScimURL + "/oauth2/token/" + values.ClientAppId,
+		TokenURL:     "https://" + values.ScimURL + "/oauth2/token/" + values.ClientAppID,
 		AuthStyle:    0,
 		Scopes:       []string{"scim"},
 	}

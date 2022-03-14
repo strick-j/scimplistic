@@ -9,11 +9,6 @@ import (
 	"github.com/strick-j/scimplistic/types"
 )
 
-// Generate Struct for actions required by Group functions
-var groupObject = Object{
-	Type: "groups",
-}
-
 // Generate Struct for the forms required by GroupFunctions
 // Form Data is used by several functions (add, get, update, etc...)
 var groupFormData = types.CreateForm{
@@ -42,11 +37,14 @@ func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupObject.Method = "GET"
+	ob := Object{
+		Type:   "groups",
+		Method: "GET",
+	}
 
 	// Retrieve byte based object via ScimGroupApifunction
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupsHandler"}).Info("Attempting to obtain Groups from SCIM API.")
-	res, _, err := groupObject.ScimType1Api()
+	res, _, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupsHandler"}).Error(err)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -79,13 +77,15 @@ func GroupHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse Vars from URL Variables
 	vars := mux.Vars(r)
 
-	// Add "method" and "id" to groupObject
-	groupObject.Id = vars["id"]
-	groupObject.Method = "GET"
+	ob := Object{
+		Type:   "groups",
+		Method: "GET",
+		Id:     vars["id"],
+	}
 
 	// Retrieve byte based object via ScimGroupApifunction
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupsHandler"}).Info("Attempting to obtain Groups from SCIM API.")
-	res, _, err := groupObject.ScimType1Api()
+	res, _, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupsHandler"}).Error(err)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -111,40 +111,27 @@ func GroupAddHandler(w http.ResponseWriter, r *http.Request) {
 	// the delete transaction, we use the r.Referer() function to get the link.
 	redirectURL := GetRedirectUrl(r.Referer())
 
-	log.Println("INFO GroupAddHandler: Reading Data from Group Add Form")
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupAddHandler"}).Info("Reading Data from Group Add Form")
 	displayName := r.FormValue("FormGroupDisplayName")
 	scimschema := []string{"urn:ietf:params:scim:schemas:core:2.0:Group"}
 
-	groupObject.Method = "POST"
-	groupObject.Type1Resources = types.Type1Resources{
+	ob := Object{
+		Type:   "groups",
+		Method: "POST",
+	}
+
+	ob.Type1Resources = types.Type1Resources{
 		DisplayName: displayName,
 		Schemas:     scimschema,
 	}
 
 	// Utilize the SCIM API funciton to POST a new Group
 	// Use the group data retrieved from the Add Group Form.
-	_, res, err := groupObject.ScimType1Api()
+	_, res, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Error(err)
 	}
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Trace(fmt.Sprintf("Group Display Name %s, Group Id %s ", res.DisplayName, res.ID))
-
-	/*if code != 201 {
-		log.Println("ERROR GroupAddHandler:", err)
-		http.Redirect(w, r, redirectURL, http.StatusFound)
-	} else {
-		log.Println("INFO GroupAddHandler: Group Added - Response StatusCode:", code)
-	}
-
-	// Declare and unmarshal byte based response.
-	var bodyObject types.PostGroupResponse
-	err = json.Unmarshal(res, &bodyObject)
-	if err != nil {
-		log.Println("ERROR GroupAddHandler:", err)
-		http.Redirect(w, r, redirectURL, http.StatusFound)
-	} else {
-		log.Println("INFO GroupAddHandler: Group Display Name and ID:", bodyObject.DisplayName, "-", bodyObject.ID)
-	}*/
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -155,7 +142,7 @@ func GroupAddHandler(w http.ResponseWriter, r *http.Request) {
 func GroupDelHandler(w http.ResponseWriter, r *http.Request) {
 	// For best UX we want the user to be returned to the page making
 	// the delete transaction, we use the r.Referer() function to get the link.
-	//redirectURL := GetRedirectUrl(r.Referer())
+	redirectURL := GetRedirectUrlNoId(r.Referer())
 
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusBadRequest)
@@ -164,21 +151,22 @@ func GroupDelHandler(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Trace("Starting Group Delete Process")
 
 	vars := mux.Vars(r)
-	id := vars["id"]
-	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Trace("Attempting to delete Group: ", id)
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Trace("Attempting to delete Group: ", vars["id"])
 
-	// Create Struct for passing data to SCIM API Delete Function.
-	groupObject.Method = "DELETE"
-	groupObject.Id = id
+	ob := Object{
+		Type:   "groups",
+		Method: "DELETE",
+		Id:     vars["id"],
+	}
 
 	// Delete Group. No response should be returned unless there is an error.
-	_, _, err := groupObject.ScimType1Api()
+	_, _, err := ob.ScimType1Api()
 	if err != nil {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Error(err)
 	}
 
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "GroupDelHandler"}).Trace("Group Delete Process completed without error")
-	//http.Redirect(w, r, redirectURL, http.StatusFound)
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 // GroupUpdateHandler reads in form data from the modal that is triggered
@@ -200,8 +188,7 @@ func GroupUpdateHandler(w http.ResponseWriter, r *http.Request) {
 // GroupAddForm is the form utilized to build the Modal when the
 // Add button is pressed from the Groups page.
 func GroupAddForm(w http.ResponseWriter, r *http.Request) {
-	log.Println("INFO GroupAddForm: Initializing Add Group Form")
-
+	log.WithFields(log.Fields{"Category": "Form Handler", "Function": "GroupAddForm"}).Trace("Initializing Add Group Form")
 	// Establish context for populating add group template
 	context := types.Context{
 		Navigation: "Add Group",

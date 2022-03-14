@@ -3,9 +3,13 @@
    "apiEndpoint": "scim",
    "apiVersion": "v2",
    "serverName": "localhost",
+   "databasePort": 5432,
    "hostName": "localhost",
    "ip": "127.0.0.1",
    "port": 8080,
    "tls": false,
-   "serviceLogging": false
+   "serviceLogging": false,
+   "authDisabled": true,
+   "tokenEnabled": false,
+   "credEnabled": false
 }
