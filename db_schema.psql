@@ -1,0 +1,51 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS name;
+DROP TABLE IF EXISTS meta;
+DROP TABLE IF EXISTS auth;
+
+CREATE TABLE users (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    username varchar(100),
+    displayname varchar(100),
+    usertype varchar(50)
+    active bool,
+    user_id INT,
+    entitlements text[],
+    schemas text[],
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE name(
+    name_id INT GENERATED ALWAYS AS IDENTITY,
+    user_id INT,
+    givenname varchar(100),
+    familyname varchar(100),
+    PRIMARY KEY(name_id),
+    CONSTRAINT fk_user
+        FOREIGN KEY(user_id)
+            REFERENCES users(user_id)
+            ON DELETE CASCADE
+);
+
+CREATE TABLE meta(
+    meta_id INT GENERATED ALWAYS AS IDENTITY,
+    user_id INT,
+    resourceType varchar(100),
+    created timestamp,
+    lastModified timestamp,
+    location varchar(200),
+    PRIMARY KEY(meta_id),
+    CONSTRAINT fk_user
+        FOREIGN KEY(user_id)
+            REFERENCES users(user_id)
+            ON DELETE CASCADE
+);
+
+CREATE TABLE auth(
+    id INT GENERATED ALWAYS AS IDENTITY,
+    access_token text,
+    token_type varchar(50),
+    expiry timestamp,
+    PRIMARY KEY(id)
+);
+

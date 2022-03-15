@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/strick-j/scimplistic/db"
 	"github.com/strick-j/scimplistic/handlers"
 	"github.com/strick-j/scimplistic/types"
 	"github.com/strick-j/scimplistic/utils"
@@ -158,8 +159,9 @@ func (s *Service) GetType1Object(ctx context.Context, ob Object) (*types.ScimTyp
 
 func (s *Service) AddType1Object(ctx context.Context, ob Object) (*types.Type1Resources, error) {
 	if err := s.client.Post(ctx, fmt.Sprintf("/%s", ob.Type), ob.Type1Resources, &Type1); err != nil {
-		return nil, fmt.Errorf("failed to add %s %s: %w", ob.Type, ob.Id, err)
+		return nil, fmt.Errorf("failed to add %s %s: %w", ob.Type, ob.Type1Resources.UserName, err)
 	}
+	db.AddAction(ob.Method, ob.Type, Type1Resources.ID, "Success")
 	return &Type1Resources, nil
 }
 
@@ -172,8 +174,10 @@ func (s *Service) UpdateType1Object(ctx context.Context, ob Object) (*types.Type
 
 func (s *Service) DeleteType1Object(ctx context.Context, ob Object) error {
 	if err := s.client.Delete(ctx, fmt.Sprintf("/%s/%s", ob.Type, ob.Id), nil); err != nil {
+		db.AddAction(ob.Method, ob.Type, ob.Id, "Failure")
 		return fmt.Errorf("failed to delete %s %s: %w", ob.Type, ob.Id, err)
 	}
+	db.AddAction(ob.Method, ob.Type, ob.Id, "Success")
 	return nil
 }
 

@@ -163,8 +163,8 @@ func UserAddHandler(w http.ResponseWriter, r *http.Request) {
 	addUserData := &types.Type1Resources{
 		UserName: uname,
 		Name: types.Name{
-			FamilyName: fname,
-			GivenName:  lname,
+			FamilyName: lname,
+			GivenName:  fname,
 		},
 		DisplayName: udname,
 		Emails: []types.Emails{
@@ -207,9 +207,7 @@ func UserDelHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserDelHandler"}).Info("Starting User Delete Process")
-	//redirectURL := GetRedirectUrl(r.Referer())
-	// TODO Strip ID off Redirect URL
-	redirectURL := "https://scimplistic.strlab.us/users"
+	redirectURL := GetRedirectUrlNoId(r.Referer())
 
 	// Retrieve UserID from URL to send to Del Function.
 	vars := mux.Vars(r)
@@ -227,7 +225,7 @@ func UserDelHandler(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserDelHandler"}).Error(err)
 	}
 
-	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserDelHandler"}).Info("User %s Deleted", vars["id"])
+	log.WithFields(log.Fields{"Category": "SCIM API Request", "Function": "UserDelHandler"}).Info("User Deleted", vars["id"])
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 

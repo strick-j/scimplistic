@@ -36,33 +36,13 @@ func SettingsHandler(w http.ResponseWriter, r *http.Request) {
 	context := types.Context{
 		Navigation: "Settings",
 		CreateForm: settingsFormData,
-		Token:      values.AuthToken,
 		Settings:   values,
-	}
-
-	if values.PrevConf {
-		context.SettingsConfigured = true
-	} else {
-		context.SettingsConfigured = false
-	}
-
-	if values.TLS {
-		context.HTTPSEnabled = true
-	} else {
-		context.HTTPSEnabled = false
-	}
-
-	if values.DB {
-		context.DatabaseEnabled = true
-	} else {
-		context.DatabaseEnabled = false
 	}
 
 	tpl.ExecuteTemplate(w, "settings.html", context)
 }
 
 ///////////////////////// Settings Type Handlers /////////////////////////
-
 func GeneralSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -266,10 +246,6 @@ func GeneralSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		logger.Info("TLS not configured")
 	}
-
-	//if sdErr := utils.ShutDown(); sdErr != nil {
-	//	log.Println(sdErr.Error())
-	//}
 
 	logger.Info("General Settings Process completed")
 	http.Redirect(w, r, redirectURL, http.StatusFound)

@@ -40,9 +40,6 @@ type Context struct {
 	Navigation         string         `json:"navigation,omitempty"`
 	Message            string         `json:"message,omitempty"`
 	SettingsConfigured bool           `json:"settingsConfigured,omitempty"`
-	HTTPSEnabled       bool           `json:"httpsEnabled,omitempty"`
-	DatabaseEnabled    bool           `json:"databaseEnabled,omitempty"`
-	Token              string         `json:"authToken,omitempty"`
 	CreateForm         CreateForm     `json:"createForm,omitempty"`
 	SecretForm         CreateForm     `json:"secretForm,omitempty"`
 	Safes              ScimType2      `json:"safes,omitempty"`
