@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/strick-j/scimplistic/types"
+	"github.com/strick-j/scimplistic/internal/types"
 	"github.com/strick-j/scimplistic/utils"
 )
 

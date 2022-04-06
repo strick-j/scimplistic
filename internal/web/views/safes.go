@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"github.com/strick-j/scimplistic/types"
+	"github.com/strick-j/scimplistic/internal/types"
 )
 
 // Generate Struct for the forms required by Safe Functions

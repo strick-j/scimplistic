@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/strick-j/scimplistic/db"
 	"github.com/strick-j/scimplistic/handlers"
-	"github.com/strick-j/scimplistic/types"
+	"github.com/strick-j/scimplistic/internal/types"
 	"github.com/strick-j/scimplistic/utils"
 	"golang.org/x/oauth2"
 )
